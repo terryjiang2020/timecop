@@ -28,6 +28,7 @@ import 'package:timecop/models/project.dart';
 enum _ProjectMenuItems { archive, delete }
 
 class ProjectsScreen extends StatelessWidget {
+  const ProjectsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
