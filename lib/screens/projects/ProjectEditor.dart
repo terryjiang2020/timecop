@@ -53,6 +53,8 @@ class _ProjectEditorState extends State<ProjectEditor> {
       child: Form(
         key: _formKey,
         child: ListView(
+          key: GlobalKey(),
+          controller: ScrollController(),
           shrinkWrap: true,
           children: <Widget>[
             Text(

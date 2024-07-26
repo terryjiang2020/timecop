@@ -87,6 +87,8 @@ class SettingsScreen extends StatelessWidget {
           title: Text(L10N.of(context).tr.settings),
         ),
         body: ListView(
+          key: GlobalKey(),
+          controller: ScrollController(),
           children: <Widget>[
             ThemeOptions(
               bloc: themeBloc,

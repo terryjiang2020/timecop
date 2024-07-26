@@ -241,6 +241,8 @@ class StoppedTimers extends StatelessWidget {
                 dashboardState.filterEnd != null);
 
             return ListView.builder(
+              key: GlobalKey(),
+              controller: ScrollController(),
               itemCount: isFiltered ? days.length + 1 : days.length,
               itemBuilder: isFiltered
                   ? (BuildContext context, int index) => (index < days.length)

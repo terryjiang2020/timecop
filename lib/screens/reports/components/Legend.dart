@@ -35,6 +35,8 @@ class Legend extends StatelessWidget {
     return SizedBox(
       height: 50,
       child: ListView(
+        key: GlobalKey(),
+        controller: ScrollController(),
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,
         children:

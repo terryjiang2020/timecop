@@ -20,7 +20,7 @@ import 'package:timecop/l10n.dart';
 
 class LocaleOptions extends StatelessWidget {
   final LocaleBloc bloc;
-  const LocaleOptions({Key? key, required this.bloc}) : super(key: key);
+  LocaleOptions({Key? key, required this.bloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +38,8 @@ class LocaleOptions extends StatelessWidget {
               Locale? newLocale = await showModalBottomSheet<Locale>(
                   context: context,
                   builder: (context) => ListView(
+                        key: GlobalKey(),
+                        controller: ScrollController(),
                         shrinkWrap: true,
                         children: <Widget>[
                           RadioListTile<Locale?>(

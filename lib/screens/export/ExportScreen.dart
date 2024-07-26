@@ -80,6 +80,8 @@ class _ExportScreenState extends State<ExportScreen> {
       ),
       body: Stack(children: [
         ListView(
+          key: GlobalKey(),
+          controller: ScrollController(),
           children: <Widget>[
             DateRangeTile(
                 startDate: _startDate,

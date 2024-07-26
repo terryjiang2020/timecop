@@ -28,7 +28,6 @@ import 'package:timecop/models/project.dart';
 enum _ProjectMenuItems { archive, delete }
 
 class ProjectsScreen extends StatelessWidget {
-  const ProjectsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +45,8 @@ class ProjectsScreen extends StatelessWidget {
                 bloc: projectsBloc,
                 builder: (BuildContext context, ProjectsState state) {
                   return ListView(
+                    key: GlobalKey(),
+                    controller: ScrollController(),
                     children: state.projects
                         .map((project) => Slidable(
                               startActionPane: ActionPane(

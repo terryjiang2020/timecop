@@ -31,6 +31,8 @@ class FilterSheet extends StatelessWidget {
       bloc: dashboardBloc,
       builder: (BuildContext context, DashboardState state) {
         return ListView(
+          key: GlobalKey(),
+          controller: ScrollController(),
           shrinkWrap: true,
           children: <Widget>[
             DateRangeTile(
