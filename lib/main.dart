@@ -126,6 +126,8 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
 
     final controller = Get.find<DropdownController>();
     int projectId = controller.getSelectedProject().id;
+    double requiredScreenWidth = controller.getSelectedProject().width.toDouble();
+    double requiredScreenHeight = controller.getSelectedProject().height.toDouble();
 
     print('pressHandler projectId: $projectId');
 
@@ -146,32 +148,58 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(snackBar1);
 
+      // Get the screen size
+      if (!context.mounted) {
+        controller.setStatus(0);
+        setState(() {
+          loading = false;
+        });
+        return;
+      };
+      final Size screenSize = MediaQuery.of(context).size;
+
+      final screenWidth = screenSize.width;
+      final screenHeight = screenSize.height;
+
+      print('Screen size: $screenWidth x $screenHeight');
+
+      controller.setWidth(requiredScreenWidth);
+      controller.setHeight(requiredScreenHeight);
+
+      if (screenWidth != requiredScreenWidth || screenHeight != requiredScreenHeight) {
+        print('Screen size is not $requiredScreenWidth x $requiredScreenHeight. Abort.');
+        controller.setStatus(0);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        setState(() {
+          loading = false;
+        });
+        controller.setErrorCode(4);
+        return;
+      }
+
+      const snackBar4 = SnackBar(
+        content: Text('Fetching project items, please wait...'),
+        duration: Duration(days: 365),
+      );
+
+      if (!context.mounted) {
+        controller.setStatus(0);
+        setState(() {
+          loading = false;
+        });
+
+        return;
+      };
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(snackBar4);
+
       final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/item/list/$projectId', options: options);
 
       if (res.statusCode == 200 && res.data != null) {
+
         print('pressHandler fetch item list res.data.success: ${res.data['success']}');
         if (res.data['success'] != null && res.data['success'] == true) {
-
-          // Get the screen size
-          if (!context.mounted) return;
-          final Size screenSize = MediaQuery.of(context).size;
-
-          final screenWidth = screenSize.width;
-          final screenHeight = screenSize.height;
-
-          final requiredScreenWidth = res.data['result']['width'].toDouble() ?? 414.0;
-          final requiredScreenHeight = res.data['result']['height'].toDouble() ?? 896.0;
-
-          print('Screen size: $screenWidth x $screenHeight');
-
-          controller.setWidth(requiredScreenWidth);
-          controller.setHeight(requiredScreenHeight);
-
-          if (screenWidth != requiredScreenWidth || screenHeight != requiredScreenHeight) {
-            print('Screen size is not $requiredScreenWidth x $requiredScreenHeight. Abort.');
-            controller.setErrorCode(4);
-            return;
-          }
           
           final List<int> newItemIds = [];
           
@@ -184,6 +212,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
           controller.setTargetedItemIds(newItemIds);
           controller.setCurrentNo(0);
           controller.setStatus(2);
+          controller.setDialogOpened(false);
           Get.back();
         }
         else {
@@ -200,7 +229,13 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
       setState(() {
         loading = false;
       });
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        controller.setStatus(0);
+        setState(() {
+          loading = false;
+        });
+        return;
+      };
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
     }
 
@@ -210,7 +245,13 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
       setState(() {
         loading = false;
       });
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        controller.setStatus(0);
+        setState(() {
+          loading = false;
+        });
+        return;
+      };
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       return;
     }
@@ -293,7 +334,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
         print('It has scrollable! Number of scrollable widgets with key: ${foundScrollables.length}');
         // Iterate through each scrollable widget and start scrolling
         for (final scrollable in foundScrollables) {
-          print('Scrolling each item: ${scrollable.widget.key} at depth ${scrollable.depth}');
+          print('Scrolling each item: ${scrollable.widget.key ?? '*no key*'} at depth ${scrollable.depth}');
           await scrollEachItem(scrollable.widget, screenshotController, scrollable.depth, foundScrollables);
         }
       } else {
@@ -302,8 +343,8 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
 
       print('All screenshots taken.');
 
-      var snackBar3 = SnackBar(
-        content: Text('${totalScreenshotsCount.toString()} screenshots taken.'),
+      var snackBar3 = const SnackBar(
+        content: Text('Screenshots taken.'),
       );
 
       if (!context.mounted) return;
@@ -676,91 +717,6 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final DropdownController dropdownController = Get.put(DropdownController());
-    // return Obx(() => 
-    //   MultiRepositoryProvider(
-    //       providers: [
-    //         RepositoryProvider<SettingsProvider>.value(value: widget.settings),
-    //       ],
-    //       child: BlocBuilder<ThemeBloc, ThemeState>(
-    //           builder: (BuildContext context, ThemeState themeState) =>
-    //               BlocBuilder<LocaleBloc, LocaleState>(
-    //                   builder: (BuildContext context, LocaleState localeState) =>
-    //                       DynamicColorBuilder(
-    //                         builder: (ColorScheme? lightDynamic,
-    //                                 ColorScheme? darkDynamic) =>
-    //                             GetMaterialApp(
-    //                           title: 'Time Cop',
-    //                           home: const DashboardScreen(),
-    //                           theme: getTheme(
-    //                               themeState.theme, lightDynamic, darkDynamic),
-    //                           localizationsDelegates: const [
-    //                             L10N.delegate,
-    //                             GlobalMaterialLocalizations.delegate,
-    //                             GlobalWidgetsLocalizations.delegate,
-    //                             GlobalCupertinoLocalizations.delegate,
-    //                           ],
-    //                           locale: localeState.locale,
-    //                           supportedLocales: const [
-    //                             Locale('en'),
-    //                             Locale('ar'),
-    //                             Locale('cs'),
-    //                             Locale('da'),
-    //                             Locale('de'),
-    //                             Locale('es'),
-    //                             Locale('fr'),
-    //                             Locale('hi'),
-    //                             Locale('id'),
-    //                             Locale('it'),
-    //                             Locale('ja'),
-    //                             Locale('ko'),
-    //                             Locale('nb', 'NO'),
-    //                             Locale('pt'),
-    //                             Locale('ru'),
-    //                             Locale('tr'),
-    //                             Locale('zh', 'CN'),
-    //                             Locale('zh', 'TW'),
-    //                           ],
-    //                           // VM Setup
-    //                           builder: (context, child) {
-    //                             return Scaffold(
-    //                               body: 
-    //                               Stack(
-    //                                 children: [
-    //                                   Screenshot(
-    //                                     controller: screenshotController,
-    //                                     child: child,
-    //                                   ),
-    //                                   // Container(
-    //                                   //   color: Colors.black.withOpacity(0.5),
-    //                                   //   child: const Center(
-    //                                   //     child: CircularProgressIndicator(),
-    //                                   //   ),
-    //                                   // ),
-    //                                 ],
-    //                               ),
-    //                               floatingActionButton: FloatingActionButton(
-    //                                 onPressed: () {
-    //                                   dropdownController.reset();
-    //                                   _dialogBuilder(context, child, pressHandler);
-    //                                 },
-    //                                 // child: const Icon(Icons.add),
-    //                                 // backgroundColor: Colors.green.shade700,
-    //                                 backgroundColor: vmPrimaryColor,
-    //                                 child: Image.memory(
-    //                                   base64Decode('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'),
-    //                                   width: 40,
-    //                                   height: 40,
-    //                                 ),
-    //                               ),
-    //                               floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-    //                             );
-    //                           },
-    //                         ),
-    //                       )
-    //                 )
-    //       )
-    //   )
-    // );
     return MultiRepositoryProvider(
         providers: [
           RepositoryProvider<SettingsProvider>.value(value: widget.settings),
@@ -827,7 +783,6 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                 ),
                                 floatingActionButton: FloatingActionButton(
                                   onPressed: () {
-                                    dropdownController.reset();
                                     _dialogBuilder(context, child, pressHandler);
                                   },
                                   // child: const Icon(Icons.add),
@@ -839,7 +794,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                     height: 40,
                                   ),
                                 ),
-                                floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+                                floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
                               );
                             },
                           ),
@@ -877,6 +832,17 @@ final options = Options(
 const uploadUrl = 'https://testserver.visualexact.com/api/designcomp/extension/screenshot/base64';
   
 Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressHandler) {
+
+  final controller = Get.find<DropdownController>();
+
+  print('controller.getDialogOpened(): ${controller.getDialogOpened()}');
+
+  if (controller.getDialogOpened()) {
+    return Future.value();
+  }
+  else {
+    controller.reset();
+  }
   
   return Get.defaultDialog(
     title: 'Select a campaign to proceed',
@@ -924,17 +890,21 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
                 )
             ]
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              controller.getErrorCode() == 0 ? 'Please select a Campaign and a Project' :
-              controller.getErrorCode() == 1 ? 'Please select a Campaign' :
-              controller.getErrorCode() == 2 ? 'Please select a Project' :
-              controller.getErrorCode() == 3 ? 'Something is wrong!' :
-              'The screen size is wrong. It must be ${controller.getWidth()} x ${controller.getHeight()}',
-              style: controller.getErrorCode() == 0 ? const TextStyle(color: Colors.black) : const TextStyle(color: Colors.red),
+          Visibility(
+            visible: controller.getErrorCode() != 0,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                controller.getErrorCode() == 0 ? '' :
+                controller.getErrorCode() == 1 ? 'Please select a Campaign' :
+                controller.getErrorCode() == 2 ? 'Please select a Project' :
+                controller.getErrorCode() == 3 ? 'Something is wrong!' :
+                // 'The screen size is wrong. It must be ${controller.getWidth()} x ${controller.getHeight()}',
+                'The screen size required is ${controller.getWidth()} x ${controller.getHeight()}. Please change your device or consult your designer.',
+                style: controller.getErrorCode() == 0 ? const TextStyle(color: Colors.black) : const TextStyle(color: Colors.red),
+              ),
             ),
-          ),
+          )
         ],
       );
     }),
@@ -942,6 +912,7 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
       TextButton(
         onPressed: () {
           final controller = Get.find<DropdownController>();
+          controller.setDialogOpened(false);
           Get.back();
         },
         child: const Text(
@@ -966,26 +937,15 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
             color: Colors.white,
           ),
         ),
-        // child: GetBuilder<DropdownController>(
-        //   builder: (controller) {
-        //     return ElevatedButton(
-        //       onPressed: () {
-        //         controller.submitHandler();
-        //       },
-        //       style: ElevatedButton.styleFrom(
-        //         backgroundColor: vmPrimaryColor,
-        //       ),
-        //       child: Text(
-        //         controller.getStatus() == 0 ? 'Submit' : 'Loading...',
-        //         style: const TextStyle(
-        //           color: Colors.white,
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // ),
       ),
     ],
+    onWillPop: () {
+      print('onWillPop is triggered');
+      final controller = Get.find<DropdownController>();
+      controller.setDialogOpened(false);
+
+      return Future.value(true);
+    }, 
   );
 }
 
@@ -1004,7 +964,9 @@ class DropdownController extends GetxController {
   List<CampaignProjectModel> projects = [
     CampaignProjectModel(
       id: 0,
-      name: 'Select a Project'
+      name: 'Select a Project',
+      width: 0.0,
+      height: 0.0
     ),
   ];
 
@@ -1021,6 +983,7 @@ class DropdownController extends GetxController {
   double width = 414.0;
   double height = 896.0;
   int status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
+  bool dialogOpened = false;
 
   Future<void> onSelectedCampaign(CampaignProjectModel? value) async {
     print('onSelectedCampaign is triggered');
@@ -1039,10 +1002,10 @@ class DropdownController extends GetxController {
         final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/project/list/${value.id}', options: options);
 
         print('onSelectedCampaign res.statusCode: ${res.statusCode}');
-        print('onSelectedCampaign res.data: ${res.data}');
         if (res.statusCode == 200 && res.data != null) {
           print('onSelectedCampaign res.data.success: ${res.data['success']}');
           if (res.data['success'] != null && res.data['success'] == true) {
+            // print('onSelectedCampaign res.data.projects.length: ${res.data['result']['projects']['length'].toString()}');
             newProjects = [
               CampaignProjectModel(
                 id: 0,
@@ -1051,10 +1014,14 @@ class DropdownController extends GetxController {
             ];
             
             for (final item in res.data['result']['projects']) {
+              print('onSelectedCampaign item.width: ${item['width'].toString()}');
+              print('onSelectedCampaign item.height: ${item['height'].toString()}');
               newProjects.add(
                 CampaignProjectModel(
                   id: item['id'],
                   name: item['name'],
+                  width: item['width'] != null ? double.parse(item['width'].toString()) : 0.0,
+                  height: item['height'] != null ? double.parse(item['height'].toString()) : 0.0
                 ),
               );
             }
@@ -1145,6 +1112,13 @@ class DropdownController extends GetxController {
     update();
   }
 
+  void setDialogOpened(bool newDialogOpened) {
+    print('setDialogOpened is triggered, newDialogOpened: $newDialogOpened');
+    dialogOpened = newDialogOpened;
+
+    update();
+  }
+
   CampaignProjectModel getSelectedCampaign() {
     return selectedCampaign;
   }
@@ -1177,12 +1151,17 @@ class DropdownController extends GetxController {
     return status;
   }
 
+  bool getDialogOpened() {
+    return dialogOpened;
+  }
+
   Future<void> reset() async {
     print('reset is triggered');
     selectedCampaign = defaultCampaign;
     selectedProject = defaultProject;
     errorCode = 0;
     status = 0;
+    dialogOpened = true;
     var newCampaigns = <CampaignProjectModel>[
       CampaignProjectModel(
         id: 0,
@@ -1257,9 +1236,11 @@ class DropdownController extends GetxController {
 }
 
 class CampaignProjectModel {
-  CampaignProjectModel({required this.id, required this.name});
+  CampaignProjectModel({required this.id, required this.name, this.width = 0.0, this.height = 0.0});
   final int id;
   final String name;
+  double width = 0.0;
+  double height = 0.0;
 }
 
 String uint8ListToBase64(Uint8List uint8List) {

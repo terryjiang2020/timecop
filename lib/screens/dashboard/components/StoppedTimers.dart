@@ -21,6 +21,7 @@ import 'package:intl/intl.dart';
 import 'package:timecop/blocs/settings/settings_bloc.dart';
 import 'package:timecop/blocs/timers/bloc.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/models/project_description_pair.dart';
 import 'package:timecop/models/timer_entry.dart';
 import 'package:timecop/utils/responsiveness_utils.dart';
@@ -241,7 +242,7 @@ class StoppedTimers extends StatelessWidget {
                 dashboardState.filterEnd != null);
 
             return ListView.builder(
-              key: GlobalKey(),
+              key: listViewKey3,
               controller: ScrollController(),
               itemCount: isFiltered ? days.length + 1 : days.length,
               itemBuilder: isFiltered

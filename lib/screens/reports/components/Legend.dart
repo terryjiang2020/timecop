@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:timecop/components/ProjectColour.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/project.dart';
 
@@ -35,7 +36,7 @@ class Legend extends StatelessWidget {
     return SizedBox(
       height: 50,
       child: ListView(
-        key: GlobalKey(),
+        key: listViewKey7,
         controller: ScrollController(),
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,

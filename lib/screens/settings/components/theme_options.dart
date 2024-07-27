@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:timecop/blocs/theme/theme_bloc.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/theme_type.dart';
 
@@ -41,7 +42,7 @@ class ThemeOptions extends StatelessWidget {
               ThemeType? newTheme = await showModalBottomSheet<ThemeType>(
                   context: context,
                   builder: (context) => ListView(
-                        key: GlobalKey(),
+                        key: listViewKey11,
                         controller: ScrollController(),
                         shrinkWrap: true,
                         children: <Widget>[

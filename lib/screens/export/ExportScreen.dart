@@ -25,6 +25,7 @@ import 'package:timecop/blocs/projects/projects_bloc.dart';
 import 'package:timecop/blocs/settings/bloc.dart';
 import 'package:timecop/components/DateRangeTile.dart';
 import 'package:timecop/components/ProjectTile.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/project.dart';
 import 'package:timecop/models/timer_entry.dart';
@@ -80,7 +81,7 @@ class _ExportScreenState extends State<ExportScreen> {
       ),
       body: Stack(children: [
         ListView(
-          key: GlobalKey(),
+          key: listViewKey4,
           controller: ScrollController(),
           children: <Widget>[
             DateRangeTile(

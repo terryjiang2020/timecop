@@ -24,6 +24,7 @@ import 'package:timecop/blocs/locale/locale_bloc.dart';
 import 'package:timecop/blocs/notifications/notifications_bloc.dart';
 import 'package:timecop/blocs/settings/bloc.dart';
 import 'package:timecop/blocs/theme/theme_bloc.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 
 import 'components/locale_options.dart';
@@ -87,7 +88,7 @@ class SettingsScreen extends StatelessWidget {
           title: Text(L10N.of(context).tr.settings),
         ),
         body: ListView(
-          key: GlobalKey(),
+          key: listViewKey9,
           controller: ScrollController(),
           children: <Widget>[
             ThemeOptions(

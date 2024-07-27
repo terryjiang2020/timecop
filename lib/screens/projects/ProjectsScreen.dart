@@ -21,6 +21,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
 import 'package:timecop/blocs/settings/bloc.dart';
 import 'package:timecop/components/ProjectColour.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/screens/projects/ProjectEditor.dart';
 import 'package:timecop/models/project.dart';
@@ -46,7 +47,7 @@ class ProjectsScreen extends StatelessWidget {
                 bloc: projectsBloc,
                 builder: (BuildContext context, ProjectsState state) {
                   return ListView(
-                    key: GlobalKey(),
+                    key: listViewKey6,
                     controller: ScrollController(),
                     children: state.projects
                         .map((project) => Slidable(
