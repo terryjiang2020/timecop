@@ -845,7 +845,13 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
   }
   
   return Get.defaultDialog(
-    title: 'Select a campaign to proceed',
+    title: 'VisualMatch',
+    titlePadding: const EdgeInsets.only(left: 15.0, top: 20.0, bottom: 10.0, right: 15.0), // Adjust padding as needed
+    titleStyle: const TextStyle(
+      fontSize: 24.0, // Make the title larger
+      fontWeight: FontWeight.bold,
+      color: Colors.black, // You can adjust the color as needed
+    ),
     backgroundColor: Colors.white,
     content: GetBuilder<DropdownController>(builder: (controller) {
 
@@ -856,39 +862,49 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          DropdownButton<String>(
-            hint: const Text('Select Campaign'),
-            onChanged: (newValue) {
-              final campaign = controller.campaigns.firstWhere((element) => element.name == newValue);
-              controller.onSelectedCampaign(campaign);
-            },
-            value: controller.selectedCampaign.name,
-            items: [
-              for (var data in controller.campaigns)
-                DropdownMenuItem(
-                  value: data.name,
-                  child: Text(
-                    data.name,
-                  ),
-                )
-            ]
+          SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: DropdownButton<String>(
+                hint: const Text('Select Campaign'),
+                onChanged: (newValue) {
+                  final campaign = controller.campaigns.firstWhere((element) => element.name == newValue);
+                  controller.onSelectedCampaign(campaign);
+                },
+                value: controller.selectedCampaign.name,
+                isExpanded: true, // This moves the icon to the end
+                items: [
+                  for (var data in controller.campaigns)
+                    DropdownMenuItem(
+                      value: data.name,
+                      child: Text(data.name),
+                    ),
+                ],
+              ),
+            ),
           ),
-          DropdownButton<String>(
-            hint: const Text('Select Project'),
-            onChanged: (newValue) {
-              final project = controller.projects.firstWhere((element) => element.name == newValue);
-              controller.onSelectedProject(project);
-            },
-            value: controller.selectedProject.name,
-            items: [
-              for (var data in controller.projects)
-                DropdownMenuItem(
-                  value: data.name,
-                  child: Text(
-                    data.name,
-                  ),
-                )
-            ]
+          SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: DropdownButton<String>(
+                hint: const Text('Select Project'),
+                onChanged: (newValue) {
+                  final project = controller.projects.firstWhere((element) => element.name == newValue);
+                  controller.onSelectedProject(project);
+                },
+                value: controller.selectedProject.name,
+                isExpanded: true, // This moves the icon to the end
+                items: [
+                  for (var data in controller.projects)
+                    DropdownMenuItem(
+                      value: data.name,
+                      child: Text(data.name),
+                    ),
+                ],
+              ),
+            ),
           ),
           Visibility(
             visible: controller.getErrorCode() != 0,
@@ -909,35 +925,43 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
       );
     }),
     actions: [
-      TextButton(
-        onPressed: () {
-          final controller = Get.find<DropdownController>();
-          controller.setDialogOpened(false);
-          Get.back();
-        },
-        child: const Text(
-          'Cancel',
-          style: TextStyle(
-            color: vmPrimaryColor,
-          ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () {
+                final controller = Get.find<DropdownController>();
+                controller.setDialogOpened(false);
+                Get.back();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: vmPrimaryColor,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              key: const Key('vm_submit_button'),
+              onPressed: () {
+                final controller = Get.find<DropdownController>();
+                controller.submitHandler();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: vmPrimaryColor,
+              ),
+              child: const Text(
+                'Submit',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
-      ElevatedButton(
-        key: const Key('vm_submit_button'),
-        onPressed: () {
-          final controller = Get.find<DropdownController>();
-          controller.submitHandler();
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: vmPrimaryColor,
-        ),
-        child: const Text(
-          'Submit',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-      ),
+      )
     ],
     onWillPop: () {
       print('onWillPop is triggered');
