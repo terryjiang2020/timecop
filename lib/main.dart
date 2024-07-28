@@ -20,7 +20,6 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:screenshot/screenshot.dart';
@@ -208,6 +207,8 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
           }
 
           newItemIds.sort();
+
+          print('pressHandler fetch item list newItemIds: $newItemIds');
 
           controller.setTargetedItemIds(newItemIds);
           controller.setCurrentNo(0);
@@ -716,7 +717,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final DropdownController dropdownController = Get.put(DropdownController());
+    Get.put(DropdownController());
     return MultiRepositoryProvider(
         providers: [
           RepositoryProvider<SettingsProvider>.value(value: widget.settings),
@@ -920,6 +921,27 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
                 style: controller.getErrorCode() == 0 ? const TextStyle(color: Colors.black) : const TextStyle(color: Colors.red),
               ),
             ),
+          ),
+          Visibility(
+            visible: controller.image != '',
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black, width: 1.0), // Add black border
+                ),
+                child: SizedBox(
+                  height: 300.0, // Set the height limit here
+                  child: Image.network(
+                    controller.image,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Text('Failed to load image');
+                    },
+                  ),
+                ),
+              ),
+            ),
           )
         ],
       );
@@ -1008,6 +1030,7 @@ class DropdownController extends GetxController {
   double height = 896.0;
   int status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
   bool dialogOpened = false;
+  String image = '';
 
   Future<void> onSelectedCampaign(CampaignProjectModel? value) async {
     print('onSelectedCampaign is triggered');
@@ -1040,12 +1063,14 @@ class DropdownController extends GetxController {
             for (final item in res.data['result']['projects']) {
               print('onSelectedCampaign item.width: ${item['width'].toString()}');
               print('onSelectedCampaign item.height: ${item['height'].toString()}');
+              print('onSelectedCampaign item.screenshot: ${item['screenshot']}');
               newProjects.add(
                 CampaignProjectModel(
                   id: item['id'],
                   name: item['name'],
                   width: item['width'] != null ? double.parse(item['width'].toString()) : 0.0,
-                  height: item['height'] != null ? double.parse(item['height'].toString()) : 0.0
+                  height: item['height'] != null ? double.parse(item['height'].toString()) : 0.0,
+                  screenshot: item['screenshot'] != null ? 'https://testserver.visualexact.com/api/general/files/${(item['screenshot'] as String).replaceAll('/', '%2F')}' : '',
                 ),
               );
             }
@@ -1073,6 +1098,7 @@ class DropdownController extends GetxController {
 
   void onSelectedProject(CampaignProjectModel? value) {
     selectedProject = value ?? defaultProject;
+    image = value?.screenshot ?? '';
     errorCode = 0;
 
     update();
@@ -1183,9 +1209,18 @@ class DropdownController extends GetxController {
     print('reset is triggered');
     selectedCampaign = defaultCampaign;
     selectedProject = defaultProject;
+    projects = [
+      CampaignProjectModel(
+        id: 0,
+        name: 'Select a Project',
+        width: 0.0,
+        height: 0.0
+      ),
+    ];
     errorCode = 0;
     status = 0;
     dialogOpened = true;
+    image = '';
     var newCampaigns = <CampaignProjectModel>[
       CampaignProjectModel(
         id: 0,
@@ -1260,11 +1295,12 @@ class DropdownController extends GetxController {
 }
 
 class CampaignProjectModel {
-  CampaignProjectModel({required this.id, required this.name, this.width = 0.0, this.height = 0.0});
+  CampaignProjectModel({required this.id, required this.name, this.width = 0.0, this.height = 0.0, this.screenshot = ''});
   final int id;
   final String name;
   double width = 0.0;
   double height = 0.0;
+  String screenshot = '';
 }
 
 String uint8ListToBase64(Uint8List uint8List) {
