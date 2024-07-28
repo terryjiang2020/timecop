@@ -97,7 +97,7 @@ class RunningTimers extends StatelessWidget {
                               maxHeight: MediaQuery.sizeOf(context).height / 4),
                           child: ListView(
                             key: listViewKey1,
-                            controller: ScrollController(),
+                            controller: listViewController1,
                             shrinkWrap: true,
                             children: runningTimers
                                 .map((timer) => RunningTimerRow(

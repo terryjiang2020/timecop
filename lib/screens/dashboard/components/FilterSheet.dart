@@ -33,7 +33,7 @@ class FilterSheet extends StatelessWidget {
       builder: (BuildContext context, DashboardState state) {
         return ListView(
           key: listViewKey2,
-          controller: ScrollController(),
+          controller: listViewController2,
           shrinkWrap: true,
           children: <Widget>[
             DateRangeTile(

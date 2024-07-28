@@ -43,7 +43,7 @@ class ThemeOptions extends StatelessWidget {
                   context: context,
                   builder: (context) => ListView(
                         key: listViewKey11,
-                        controller: ScrollController(),
+                        controller: listViewController11,
                         shrinkWrap: true,
                         children: <Widget>[
                           RadioListTile<ThemeType>(

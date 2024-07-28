@@ -40,7 +40,7 @@ class LocaleOptions extends StatelessWidget {
                   context: context,
                   builder: (context) => ListView(
                         key: listViewKey10,
-                        controller: ScrollController(),
+                        controller: listViewController10,
                         shrinkWrap: true,
                         children: <Widget>[
                           RadioListTile<Locale?>(

@@ -37,7 +37,7 @@ class Legend extends StatelessWidget {
       height: 50,
       child: ListView(
         key: listViewKey7,
-        controller: ScrollController(),
+        controller: listViewController7,
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,
         children:

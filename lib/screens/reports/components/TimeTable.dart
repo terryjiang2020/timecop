@@ -66,7 +66,7 @@ class TimeTable extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       child: ListView(
         key: listViewKey8,
-        controller: ScrollController(),
+        controller: listViewController8,
         shrinkWrap: true,
         children: <Widget>[
           Row(

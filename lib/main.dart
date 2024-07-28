@@ -412,9 +412,9 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
           // final bool inViewport = bounds.top < viewportHeight + offset && bounds.bottom > offset;
           final bool inViewport = bounds.top >= 0 && bounds.top < viewportHeight;
 
-          print('widget ${widget.key} checkpoint 4: condition 1: $condition1');
-          print('widget ${widget.key} checkpoint 4: condition 2: $condition2');
-          print('widget ${widget.key} checkpoint 4: inViewport: $inViewport');
+          print('widget ${widget.key} checkpoint 3: condition 1: $condition1');
+          print('widget ${widget.key} checkpoint 3: condition 2: $condition2');
+          print('widget ${widget.key} checkpoint 3: inViewport: $inViewport');
 
           if (!inViewport) {
             print('widget ${widget.key} is not in viewport');
@@ -433,7 +433,43 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
         }
       }
     }
-    print('widget ${widget.key} checkpoint 4');
+    else {
+      print('widget ${widget.key} checkpoint 4');
+      if (widget == null) {
+        print('widget is null');
+      }
+      else if (widget.key == null) {
+        print('widget.key is null');
+      }
+      else if (widget.key.currentContext == null) {
+        print('widget.key.currentContext is null');
+      }
+      else if (widget.key.currentContext!.findRenderObject() == null) {
+        print('widget.key.currentContext.findRenderObject() is null');
+      }
+      else if (condition1 == false) {
+        print('condition1 is false');
+        final isValidScrollable = (widget is ListView ||
+        widget is ScrollView ||
+        widget is SingleChildScrollView ||
+        widget is CustomScrollView ||
+        widget is NestedScrollView);
+        if (isValidScrollable) {
+          print('widget ${widget.key} controller: ${widget.controller}');
+          print('widget ${widget.key} controller.hasClients: ${widget.controller?.hasClients}');
+          print('widget ${widget.key} controller.position.maxScrollExtent: ${widget.controller?.position?.maxScrollExtent}');
+          print('widget ${widget.key} controller.offset: ${widget.controller?.offset}');
+          print('widget ${widget.key} scrollDirection: ${widget.scrollDirection}');
+        }
+        else {
+          print('widget ${widget.key} is not a valid scrollable');
+        }
+      }
+      else if (condition2 == false) {
+        print('condition2 is false');
+      }
+    }
+    print('widget ${widget.key} checkpoint 5');
 
     return false;
   }
@@ -1046,7 +1082,7 @@ class DropdownController extends GetxController {
 
     if (value != null && value.id != 0) {
       try {
-        final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/project/list/${value.id}', options: options);
+        final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/project/incompleted/list/${value.id}', options: options);
 
         print('onSelectedCampaign res.statusCode: ${res.statusCode}');
         if (res.statusCode == 200 && res.data != null) {
@@ -1246,7 +1282,12 @@ class DropdownController extends GetxController {
             newCampaigns.add(
               CampaignProjectModel(
                 id: item['id'],
-                name: item['name'],
+                name: item['name'] + (
+                  item['incompletedProjects'] != 0 &&
+                  item['incompletedProjects'] != null ?
+                  ' (${item['incompletedProjects']})' :
+                  ''
+                ),
               ),
             );
           }

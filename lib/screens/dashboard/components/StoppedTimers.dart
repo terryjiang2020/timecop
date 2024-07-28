@@ -243,7 +243,7 @@ class StoppedTimers extends StatelessWidget {
 
             return ListView.builder(
               key: listViewKey3,
-              controller: ScrollController(),
+              controller: listViewController3,
               itemCount: isFiltered ? days.length + 1 : days.length,
               itemBuilder: isFiltered
                   ? (BuildContext context, int index) => (index < days.length)

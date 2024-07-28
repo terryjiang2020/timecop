@@ -48,7 +48,7 @@ class ProjectsScreen extends StatelessWidget {
                 builder: (BuildContext context, ProjectsState state) {
                   return ListView(
                     key: listViewKey6,
-                    controller: ScrollController(),
+                    controller: listViewController6,
                     children: state.projects
                         .map((project) => Slidable(
                               startActionPane: ActionPane(

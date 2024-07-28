@@ -89,7 +89,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         body: ListView(
           key: listViewKey9,
-          controller: ScrollController(),
+          controller: listViewController9,
           children: <Widget>[
             ThemeOptions(
               bloc: themeBloc,
