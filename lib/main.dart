@@ -882,7 +882,7 @@ Future<void> _dialogBuilder(BuildContext context, Widget? child, Function pressH
   }
   
   return Get.defaultDialog(
-    title: 'VisualMatch',
+    title: 'VisualExact',
     titlePadding: const EdgeInsets.only(left: 15.0, top: 20.0, bottom: 10.0, right: 15.0), // Adjust padding as needed
     titleStyle: const TextStyle(
       fontSize: 24.0, // Make the title larger
@@ -1072,6 +1072,7 @@ class DropdownController extends GetxController {
     print('onSelectedCampaign is triggered');
     selectedCampaign = value ?? defaultCampaign;
     selectedProject = defaultProject;
+    image = '';
     errorCode = 0;
     var newProjects = <CampaignProjectModel>[
       CampaignProjectModel(
