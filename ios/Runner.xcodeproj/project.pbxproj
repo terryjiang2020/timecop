@@ -163,7 +163,7 @@
 		97C146E61CF9000F007C117D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1510;
 				ORGANIZATIONNAME = "The Chromium Authors";
 				TargetAttributes = {
 					97C146ED1CF9000F007C117D = {
@@ -260,6 +260,7 @@
 				"${BUILT_PRODUCTS_DIR}/flutter_app_badger/flutter_app_badger.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_keyboard_visibility/flutter_keyboard_visibility.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_local_notifications/flutter_local_notifications.framework",
+				"${BUILT_PRODUCTS_DIR}/integration_test/integration_test.framework",
 				"${BUILT_PRODUCTS_DIR}/package_info_plus/package_info_plus.framework",
 				"${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework",
 				"${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework",
@@ -278,6 +279,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_app_badger.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_keyboard_visibility.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_local_notifications.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/integration_test.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/package_info_plus.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/path_provider_foundation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/share_plus.framework",

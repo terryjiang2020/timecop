@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'dart:io';
 
@@ -36,6 +35,7 @@ import 'package:timecop/data_providers/data/data_provider.dart';
 import 'package:timecop/data_providers/notifications/notifications_provider.dart';
 import 'package:timecop/data_providers/settings/settings_provider.dart';
 import 'package:timecop/fontlicenses.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/theme_type.dart';
 import 'package:timecop/screens/dashboard/DashboardScreen.dart';
@@ -44,6 +44,8 @@ import 'package:flutter_app_badger/flutter_app_badger.dart';
 
 import 'package:timecop/data_providers/data/database_provider.dart';
 import 'package:timecop/data_providers/settings/shared_prefs_settings_provider.dart';
+
+import 'screens/dashboard/components/VisualMatchButton.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -239,58 +241,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
     }
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return MultiRepositoryProvider(
-  //       providers: [
-  //         RepositoryProvider<SettingsProvider>.value(value: widget.settings),
-  //       ],
-  //       child: BlocBuilder<ThemeBloc, ThemeState>(
-  //           builder: (BuildContext context, ThemeState themeState) =>
-  //               BlocBuilder<LocaleBloc, LocaleState>(
-  //                   builder: (BuildContext context, LocaleState localeState) =>
-  //                       DynamicColorBuilder(
-  //                         builder: (ColorScheme? lightDynamic,
-  //                                 ColorScheme? darkDynamic) =>
-  //                             MaterialApp(
-  //                           title: 'Time Cop',
-  //                           home: const DashboardScreen(),
-  //                           theme: getTheme(
-  //                               themeState.theme, lightDynamic, darkDynamic),
-  //                           localizationsDelegates: const [
-  //                             L10N.delegate,
-  //                             GlobalMaterialLocalizations.delegate,
-  //                             GlobalWidgetsLocalizations.delegate,
-  //                             GlobalCupertinoLocalizations.delegate,
-  //                           ],
-  //                           locale: localeState.locale,
-  //                           supportedLocales: const [
-  //                             Locale('en'),
-  //                             Locale('ar'),
-  //                             Locale('cs'),
-  //                             Locale('da'),
-  //                             Locale('de'),
-  //                             Locale('es'),
-  //                             Locale('fr'),
-  //                             Locale('hi'),
-  //                             Locale('id'),
-  //                             Locale('it'),
-  //                             Locale('ja'),
-  //                             Locale('ko'),
-  //                             Locale('nb', 'NO'),
-  //                             Locale('pt'),
-  //                             Locale('ru'),
-  //                             Locale('tr'),
-  //                             Locale('zh', 'CN'),
-  //                             Locale('zh', 'TW'),
-  //                           ],
-  //                         ),
-  //                       ))));
-  // }
-
   bool loading = false;
-
-  final ScreenshotController screenshotController = ScreenshotController();
 
   @override
   Widget build(BuildContext context) {
@@ -307,6 +258,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                   ColorScheme? darkDynamic) =>
                               MaterialApp(
                             title: 'Time Cop',
+                            navigatorKey: navigatorKey,
                             home: const DashboardScreen(),
                             theme: getTheme(
                                 themeState.theme, lightDynamic, darkDynamic),
@@ -358,19 +310,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                     )
                                   ],
                                 ),
-                                floatingActionButton: FloatingActionButton(
-                                  onPressed: () {
-                                    // _dialogBuilder(context, child, pressHandler);
-                                    // Navigator.of(context).pop();
-                                    print('pressed');
-                                  },
-                                  backgroundColor: vmPrimaryColor,
-                                  child: Image.memory(
-                                    base64Decode('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'),
-                                    width: 40,
-                                    height: 40,
-                                  ),
-                                ),
+                                floatingActionButton: const VisualMatchButton(),
                                 floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
                               );
                             },

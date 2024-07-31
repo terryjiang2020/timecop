@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:screenshot/screenshot.dart';
 
 final GlobalKey listViewKey1 = GlobalKey(debugLabel: 'listViewKey1');
 final GlobalKey listViewKey2 = GlobalKey(debugLabel: 'listViewKey2');
@@ -23,3 +24,7 @@ final ScrollController listViewController8 = ScrollController();
 final ScrollController listViewController9 = ScrollController();
 final ScrollController listViewController10 = ScrollController();
 final ScrollController listViewController11 = ScrollController();
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+final ScreenshotController screenshotController = ScreenshotController();
