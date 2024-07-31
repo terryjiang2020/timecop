@@ -47,297 +47,83 @@ const uploadUrl = 'https://testserver.visualexact.com/api/designcomp/extension/s
 class _VisualMatchButtonState extends State<VisualMatchButton> {
 
   Future<void> _showMyDialog() async {
-    return showDialog<void>(
-      context: navigatorKey.currentContext!,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        List<CampaignProjectModel> items = [];
-        bool dialogOpened = false;
-        CampaignProjectModel defaultCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
-        CampaignProjectModel defaultProject = CampaignProjectModel(id: 0, name: 'Select a Project');
-        CampaignProjectModel selectedCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
-        CampaignProjectModel selectedProject = CampaignProjectModel(id: 0, name: 'Select a Project');
-        Function submitHandlerFunc = (Widget? child, BuildContext context) {};
-        String image = '';
-        int errorCode = 0;
-        double width = 414.0;
-        double height = 896.0;
-        BuildContext? currentContext;
-        Widget? child;
-        List<int> targetedItemIds = [];
-        int currentNo = 0;
-        int status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
+    String contentText = "Content of Dialog";
+    List<CampaignProjectModel> items = [];
+    bool dialogOpened = false;
+    CampaignProjectModel defaultCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
+    CampaignProjectModel defaultProject = CampaignProjectModel(id: 0, name: 'Select a Project');
+    CampaignProjectModel selectedCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
+    CampaignProjectModel selectedProject = CampaignProjectModel(id: 0, name: 'Select a Project');
+    Function submitHandlerFunc = (Widget? child, BuildContext context) {};
+    String image = '';
+    int errorCode = 0;
+    double width = 414.0;
+    double height = 896.0;
+    BuildContext? currentContext;
+    Widget? child;
+    List<int> targetedItemIds = [];
+    int currentNo = 0;
+    int status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
 
-        List<CampaignProjectModel> campaigns = [
-          CampaignProjectModel(
-            id: 0,
-            name: 'Select a Campaign'
-          ),
-        ];
+    List<CampaignProjectModel> campaigns = [
+      CampaignProjectModel(
+        id: 0,
+        name: 'Select a Campaign'
+      ),
+    ];
 
-        List<CampaignProjectModel> projects = [
-          CampaignProjectModel(
-            id: 0,
-            name: 'Select a Project',
-            width: 0.0,
-            height: 0.0
-          ),
-        ];
+    List<CampaignProjectModel> newCampaigns = [
+      CampaignProjectModel(
+        id: 0,
+        name: 'Select a Campaign',
+      ),
+    ];
+    
+    try {
+      final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/campaign/list', options: options);
 
-        Future<void> reset() async {
-          print('reset is triggered');
-          setState(() {
-            selectedCampaign = defaultCampaign;
-            selectedProject = defaultProject;
-            items = [];
-            projects = [
+      print('res.statusCode: ${res.statusCode}');
+      print('res.data: ${res.data}');
+      if (res.statusCode == 200 && res.data != null) {
+        print('res.data.success: ${res.data['success']}');
+        if (res.data['success'] != null && res.data['success'] == true) {
+          
+          for (final item in res.data['result']) {
+            newCampaigns.add(
               CampaignProjectModel(
-                id: 0,
-                name: 'Select a Project',
-                width: 0.0,
-                height: 0.0
-              ),
-            ];
-            errorCode = 0;
-            status = 0;
-            dialogOpened = true;
-            image = '';
-          });
-          var newCampaigns = <CampaignProjectModel>[
-            CampaignProjectModel(
-              id: 0,
-              name: 'Select a Campaign',
-            ),
-          ];
-          try {
-            final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/campaign/list', options: options);
-
-            print('res.statusCode: ${res.statusCode}');
-            print('res.data: ${res.data}');
-            if (res.statusCode == 200 && res.data != null) {
-              print('res.data.success: ${res.data['success']}');
-              if (res.data['success'] != null && res.data['success'] == true) {
-                newCampaigns = [
-                  CampaignProjectModel(
-                    id: 0,
-                    name: 'Select a Campaign',
-                  ),
-                ];
-                
-                for (final item in res.data['result']) {
-                  newCampaigns.add(
-                    CampaignProjectModel(
-                      id: item['id'],
-                      name: item['name'] + (
-                        item['incompletedProjects'] != 0 &&
-                        item['incompletedProjects'] != null ?
-                        ' (${item['incompletedProjects']})' :
-                        ''
-                      ),
-                    ),
-                  );
-                }
-              }
-            }
-            setState(() => campaigns = newCampaigns);
-
-          } catch (e) {
-            print('Error: $e');
-            setState(() => campaigns = [
-              CampaignProjectModel(
-                id: 0,
-                name: 'Select a Campaign'
-              ),
-            ]);
-          }
-        }
-
-        @override
-        void initState() {
-          super.initState();
-
-          print('initState is triggered');
-
-          items = [];
-          dialogOpened = false;
-          defaultCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
-          defaultProject = CampaignProjectModel(id: 0, name: 'Select a Project');
-          selectedCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
-          selectedProject = CampaignProjectModel(id: 0, name: 'Select a Project');
-          submitHandlerFunc = (Widget? child, BuildContext context) {};
-          image = '';
-          errorCode = 0;
-          width = 414.0;
-          height = 896.0;
-          currentContext = null;
-          child = null;
-          targetedItemIds = [];
-          currentNo = 0;
-          status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
-
-          campaigns = [
-            CampaignProjectModel(
-              id: 0,
-              name: 'Select a Campaign'
-            ),
-          ];
-
-          projects = [
-            CampaignProjectModel(
-              id: 0,
-              name: 'Select a Project',
-              width: 0.0,
-              height: 0.0
-            ),
-          ];
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            reset();
-          });
-        }
-
-        Future<void> onSelectedCampaign(CampaignProjectModel? value) async {
-          print('onSelectedCampaign is triggered');
-          setState(() {
-            selectedCampaign = value ?? defaultCampaign;
-            selectedProject = defaultProject;
-            image = '';
-            errorCode = 0;
-          });
-          var newProjects = <CampaignProjectModel>[
-            CampaignProjectModel(
-              id: 0,
-              name: 'Select a Project',
-            ),
-          ];
-
-          if (value != null && value.id != 0) {
-            try {
-              final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/project/incompleted/list/${value.id}', options: options);
-
-              print('onSelectedCampaign res.statusCode: ${res.statusCode}');
-              if (res.statusCode == 200 && res.data != null) {
-                print('onSelectedCampaign res.data.success: ${res.data['success']}');
-                if (res.data['success'] != null && res.data['success'] == true) {
-                  newProjects = [
-                    CampaignProjectModel(
-                      id: 0,
-                      name: 'Select a Project',
-                    ),
-                  ];
-                  
-                  for (final item in res.data['result']['projects']) {
-                    print('onSelectedCampaign item.width: ${item['width'].toString()}');
-                    print('onSelectedCampaign item.height: ${item['height'].toString()}');
-                    print('onSelectedCampaign item.screenshot: ${item['screenshot']}');
-                    newProjects.add(
-                      CampaignProjectModel(
-                        id: item['id'],
-                        name: item['name'],
-                        width: item['width'] != null ? double.parse(item['width'].toString()) : 0.0,
-                        height: item['height'] != null ? double.parse(item['height'].toString()) : 0.0,
-                        screenshot: item['screenshot'] != null ? 'https://testserver.visualexact.com/api/general/files/${(item['screenshot'] as String).replaceAll('/', '%2F')}' : '',
-                      ),
-                    );
-                  }
-                }
-              }
-              setState(() => projects = newProjects);
-
-            } catch (e) {
-              print('onSelectedCampaign Error: $e');
-              setState(() => projects = [
-                CampaignProjectModel(
-                  id: 0,
-                  name: 'Select a Project'
+                id: item['id'],
+                name: item['name'] + (
+                  item['incompletedProjects'] != 0 &&
+                  item['incompletedProjects'] != null ?
+                  ' (${item['incompletedProjects']})' :
+                  ''
                 ),
-              ]);
-            }
-
-          }
-
-          if (selectedCampaign != null) {
-            print('New Campaign: ${selectedCampaign!.name}');
+              ),
+            );
           }
         }
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+    setState(() => campaigns = newCampaigns);
 
-        void onSelectedProject(CampaignProjectModel? value) {
-          setState(() {
-            selectedProject = value ?? defaultProject;
-            image = value?.screenshot ?? '';
-            errorCode = 0;
-          });
+    List<CampaignProjectModel> projects = [
+      CampaignProjectModel(
+        id: 0,
+        name: 'Select a Project',
+        width: 0.0,
+        height: 0.0
+      ),
+    ];
 
-          if (value != null) {
-            print('New Project: ${value.name}');
-          }
-        }
-
-        void submitHandler() {
-          print('submitHandler is triggered');
-          print('Selected Campaign: ${selectedCampaign.id}');
-          print('Selected Project: ${selectedProject.id}');
-          if (selectedCampaign.id == 0) {
-            setState(() => errorCode = 1);
-          } 
-          else if (selectedProject.id == 0) {
-            setState(() => errorCode = 2);
-          }
-          else if (currentContext != null && child != null && status == 0) {
-            print('Condition passed, proceed with pressHandler');
-            setState(() => status = 1);
-            
-            submitHandlerFunc(child, currentContext!);
-          }
-          else if (!(currentContext != null && child != null)) {
-            setState(() => errorCode = 3);
-          }
-          print('errorCode: $errorCode');
-
-          return;
-        }
+    return showDialog(
+      context: navigatorKey.currentContext!,
+      builder: (context) {
 
         return StatefulBuilder(
           builder: (context, setState) {
-            List<Widget> actions = [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        dialogOpened = false;
-                      },
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: vmPrimaryColor,
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      key: const Key('vm_submit_button'),
-                      onPressed: () {
-                        submitHandler();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: vmPrimaryColor,
-                      ),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ];
-
-            Widget baseAlertDialog = AlertDialog(
+            return AlertDialog(
               titlePadding: const EdgeInsets.only(left: 15.0, top: 20.0, bottom: 10.0, right: 15.0),
               contentPadding: const EdgeInsets.all(8),
               backgroundColor: Colors.white,
@@ -352,6 +138,9 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Text(contentText),
+                  // Text(selectedCampaign.name),
+                  // Text(selectedProject.name),
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -362,8 +151,66 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                           child: DropdownButton<String>(
                             hint: const Text('Select Campaign'),
                             onChanged: (newValue) {
-                              final campaign = campaigns.firstWhere((element) => element.name == newValue);
-                              onSelectedCampaign(campaign);
+                              final value = campaigns.firstWhere((element) => element.name == newValue);
+                              setState(() {
+                                selectedCampaign = value ?? defaultCampaign;
+                                image = '';
+                                errorCode = 0;
+                              });
+
+                              var newProjects = <CampaignProjectModel>[
+                                CampaignProjectModel(
+                                  id: 0,
+                                  name: 'Select a Project',
+                                ),
+                              ];
+
+                              if (value != null && value.id != 0) {
+                                try {
+                                  Dio().get('https://testserver.visualexact.com/api/designcomp/project/incompleted/list/${value.id}', options: options)
+                                  .then((res) {
+                                    print('onSelectedCampaign res.statusCode: ${res.statusCode}');
+                                    if (res.statusCode == 200 && res.data != null) {
+                                      print('onSelectedCampaign res.data.success: ${res.data['success']}');
+                                      if (res.data['success'] != null && res.data['success'] == true) {
+                                        newProjects = [
+                                          CampaignProjectModel(
+                                            id: 0,
+                                            name: 'Select a Project',
+                                          ),
+                                        ];
+                                        
+                                        for (final item in res.data['result']['projects']) {
+                                          print('onSelectedCampaign item.width: ${item['width'].toString()}');
+                                          print('onSelectedCampaign item.height: ${item['height'].toString()}');
+                                          print('onSelectedCampaign item.screenshot: ${item['screenshot']}');
+                                          newProjects.add(
+                                            CampaignProjectModel(
+                                              id: item['id'],
+                                              name: item['name'],
+                                              width: item['width'] != null ? double.parse(item['width'].toString()) : 0.0,
+                                              height: item['height'] != null ? double.parse(item['height'].toString()) : 0.0,
+                                              screenshot: item['screenshot'] != null ? 'https://testserver.visualexact.com/api/general/files/${(item['screenshot'] as String).replaceAll('/', '%2F')}' : '',
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    }
+                                    setState(() {
+                                      selectedProject = defaultProject;
+                                      projects = newProjects;
+                                    });
+                                  });
+                                } catch (e) {
+                                  print('onSelectedCampaign Error: $e');
+                                  setState(() => projects = [
+                                    CampaignProjectModel(
+                                      id: 0,
+                                      name: 'Select a Project'
+                                    ),
+                                  ]);
+                                }
+                              }
                             },
                             value: selectedCampaign.name,
                             isExpanded: true, // This moves the icon to the end
@@ -451,30 +298,76 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                       alignment: WrapAlignment.center,
                       spacing: 8,
                       runSpacing: 8,
-                      children: actions,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  dialogOpened = false;
+                                },
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: vmPrimaryColor,
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                key: const Key('vm_submit_button'),
+                                onPressed: () {
+                                  print('submitHandler 1 is triggered');
+                                  print('Selected Campaign: ${selectedCampaign.id}');
+                                  print('Selected Project: ${selectedProject.id}');
+                                  if (selectedCampaign.id == 0) {
+                                    setState(() {
+                                      errorCode = 1;
+                                    });
+                                  } 
+                                  else if (selectedProject.id == 0) {
+                                    setState(() {
+                                      errorCode = 2;
+                                    });
+                                  }
+                                  else if (currentContext != null && child != null && status == 0) {
+                                    print('Condition passed, proceed with pressHandler');
+                                    setState(() {
+                                      status = 1;
+                                    });
+                                    
+                                    submitHandlerFunc(child, currentContext!);
+                                  }
+                                  else if (!(currentContext != null && child != null)) {
+                                    setState(() {
+                                      errorCode = 3;
+                                    });
+                                  }
+                                  print('errorCode: $errorCode');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: vmPrimaryColor,
+                                ),
+                                child: const Text(
+                                  'Submit',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
                   )
                 ],
               ),
-              buttonPadding: EdgeInsets.zero,
             );
-
-            WillPopScope willPopScope = WillPopScope(
-              onWillPop: () {
-                print('onWillPop is triggered');
-                setState(() {
-                  dialogOpened = false;
-                });
-
-                return Future.value(true);
-              },
-              child: baseAlertDialog,
-            );
-
-            return willPopScope;
-          }
+          },
         );
-
       },
     );
   }
