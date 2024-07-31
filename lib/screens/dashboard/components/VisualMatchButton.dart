@@ -23,8 +23,14 @@ import 'package:timecop/global_key.dart';
 class VisualMatchButton extends StatefulWidget {
   final Widget? child;
   final Function setLoading;
+  final BuildContext currentContext;
 
-  const VisualMatchButton({Key? key, required this.child, required this.setLoading}) : super(key: key);
+  const VisualMatchButton({
+    Key? key,
+    required this.child,
+    required this.setLoading,
+    required this.currentContext
+  }) : super(key: key);
 
   @override
   State<VisualMatchButton> createState() => _VisualMatchButtonState();
@@ -249,9 +255,30 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                 ],
               },
               options: options)
-              .then((res) {
+              .then((res) async {
                 if (res.statusCode == 200) {
                   print('Screenshot uploaded successfully.');
+
+                  print('currentNo: $currentNo');
+
+                  setState(() {
+                    currentNo = currentNo + 1;
+                  });
+
+                  print('allWidgets.length: ${allWidgets.length}');
+                  print('currentDepth: $currentDepth');
+                  // Check for a new widget with a higher depth
+                  for (var widgetItem in allWidgets) {
+                    print('widgetItem.depth: ${widgetItem.depth}');
+                    print('widgetItem.widget.key: ${widgetItem.widget.key}');
+                    print('widgetItem.widget.key: ${widgetItem.widget.key}');
+                    print('isScrollable(widgetItem.widget): ${isScrollable(widgetItem.widget)}');
+                    if (widgetItem.depth > currentDepth && isScrollable(widgetItem.widget)) {
+                      print('Switching to widget with higher depth: ${widgetItem.depth}');
+                      await scrollEachItem(widgetItem.widget, widgetItem.depth, allWidgets);
+                    }
+                  }
+
                   return currentNo;
                 } else {
                   print('Screenshot upload failed: ${res.statusCode}');
@@ -267,25 +294,25 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
             print('Capture Error: $onError');
           });
 
-          print('currentNo: $currentNo');
+          // print('currentNo: $currentNo');
 
-          setState(() {
-            currentNo = currentNo + 1;
-          });
+          // setState(() {
+          //   currentNo = currentNo + 1;
+          // });
 
-          print('allWidgets.length: ${allWidgets.length}');
-          print('currentDepth: $currentDepth');
-          // Check for a new widget with a higher depth
-          for (var widgetItem in allWidgets) {
-            print('widgetItem.depth: ${widgetItem.depth}');
-            print('widgetItem.widget.key: ${widgetItem.widget.key}');
-            print('widgetItem.widget.key: ${widgetItem.widget.key}');
-            print('isScrollable(widgetItem.widget): ${isScrollable(widgetItem.widget)}');
-            if (widgetItem.depth > currentDepth && isScrollable(widgetItem.widget)) {
-              print('Switching to widget with higher depth: ${widgetItem.depth}');
-              await scrollEachItem(widgetItem.widget, widgetItem.depth, allWidgets);
-            }
-          }
+          // print('allWidgets.length: ${allWidgets.length}');
+          // print('currentDepth: $currentDepth');
+          // // Check for a new widget with a higher depth
+          // for (var widgetItem in allWidgets) {
+          //   print('widgetItem.depth: ${widgetItem.depth}');
+          //   print('widgetItem.widget.key: ${widgetItem.widget.key}');
+          //   print('widgetItem.widget.key: ${widgetItem.widget.key}');
+          //   print('isScrollable(widgetItem.widget): ${isScrollable(widgetItem.widget)}');
+          //   if (widgetItem.depth > currentDepth && isScrollable(widgetItem.widget)) {
+          //     print('Switching to widget with higher depth: ${widgetItem.depth}');
+          //     await scrollEachItem(widgetItem.widget, widgetItem.depth, allWidgets);
+          //   }
+          // }
         }
       }
 
@@ -337,7 +364,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
       return foundScrollables;
     }
 
-    Future<void> pressHandler(Widget? child, BuildContext context) async {
+    Future<void> pressHandler(Widget? child, BuildContext currentContext) async {
       print('Button pressed, updated 3');
 
       int projectId = selectedProject.id;
@@ -347,7 +374,6 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
       print('pressHandler projectId: $projectId');
 
       String deleteUrl = 'https://testserver.visualexact.com/api/designcomp/extension/screenshot/clear/$projectId';
-      String endUrl = 'https://testserver.visualexact.com/api/designcomp/project/loading/update/$projectId/3';
 
       try {
         setState(() {
@@ -361,11 +387,11 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           duration: Duration(days: 365),
         );
 
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(snackBar1);
+        ScaffoldMessenger.of(currentContext).hideCurrentSnackBar();
+        ScaffoldMessenger.of(currentContext).showSnackBar(snackBar1);
 
         // Get the screen size
-        if (!context.mounted) {
+        if (!currentContext.mounted) {
           setState(() {
             status = 0;
           });
@@ -373,7 +399,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
 
           return;
         };
-        final Size screenSize = MediaQuery.of(context).size;
+        final Size screenSize = MediaQuery.of(currentContext).size;
 
         final screenWidth = screenSize.width;
         final screenHeight = screenSize.height;
@@ -387,7 +413,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
 
         if (screenWidth != requiredScreenWidth || screenHeight != requiredScreenHeight) {
           print('Screen size is not $requiredScreenWidth x $requiredScreenHeight. Abort.');
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(currentContext).hideCurrentSnackBar();
           setState(() {
             status = 0;
             errorCode = 4;
@@ -402,7 +428,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           duration: Duration(days: 365),
         );
 
-        if (!context.mounted) {
+        if (!currentContext.mounted) {
           setState(() {
             status = 0;
           });
@@ -411,8 +437,8 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           return;
         };
 
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(snackBar4);
+        ScaffoldMessenger.of(currentContext).hideCurrentSnackBar();
+        ScaffoldMessenger.of(currentContext).showSnackBar(snackBar4);
 
         final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/item/list/$projectId', options: options);
 
@@ -438,7 +464,9 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
               dialogOpened = false;
             });
             
-            Navigator.of(context).pop();
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
           }
           else {
             setState(() {
@@ -454,10 +482,10 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           status = 0;
         });
         widget.setLoading(false);
-        if (!context.mounted) {
+        if (!currentContext.mounted) {
           return;
         };
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(currentContext).hideCurrentSnackBar();
       }
 
       if (child == null) {
@@ -466,10 +494,10 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           status = 0;
         });
         widget.setLoading(false);
-        if (!context.mounted) {
+        if (!currentContext.mounted) {
           return;
         };
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(currentContext).hideCurrentSnackBar();
         return;
       }
 
@@ -482,7 +510,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           duration: Duration(days: 365),
         );
 
-        if (!context.mounted) {
+        if (!currentContext.mounted) {
           setState(() {
             status = 0;
           });
@@ -491,8 +519,8 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           return;
         };
 
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(snackBar2);
+        ScaffoldMessenger.of(currentContext).hideCurrentSnackBar();
+        ScaffoldMessenger.of(currentContext).showSnackBar(snackBar2);
 
         setState(() {
           totalScreenshotsCount = 0;
@@ -523,11 +551,48 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                 ],
               },
               options: options)
-              .then((res) {
+              .then((res) async {
                 print('Screenshot uploaded successfully.');
                 setState(() {
                   totalScreenshotsCount = totalScreenshotsCount + 1;
                 });
+
+                setState(() {
+                  currentNo = currentNo + 1;
+                });
+
+                try {
+                  if (!currentContext.mounted) throw 'Context is not mounted.';
+                  final foundScrollables = _findScrollableWidgets(currentContext);
+
+                  if (foundScrollables.isNotEmpty) {
+                    print('It has scrollable! Number of scrollable widgets with key: ${foundScrollables.length}');
+                    // Iterate through each scrollable widget and start scrolling
+                    for (final scrollable in foundScrollables) {
+                      print('Scrolling each item: ${scrollable.widget.key ?? '*no key*'} at depth ${scrollable.depth}');
+                      await scrollEachItem(scrollable.widget, scrollable.depth, foundScrollables);
+                    }
+                  } else {
+                    print('It has no scrollable!');
+                  }
+
+                  print('All screenshots taken.');
+
+                  var snackBar3 = const SnackBar(
+                    content: Text('Screenshots taken.'),
+                  );
+
+                  if (!currentContext.mounted) throw 'Context is not mounted.';
+                  ScaffoldMessenger.of(currentContext).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(currentContext).showSnackBar(snackBar3);
+
+                  setState(() {
+                    status = 0;
+                  });
+                  widget.setLoading(false);
+                } catch (err) {
+                  print('Error: $err');
+                }
 
                 return currentNo;
               });
@@ -545,42 +610,42 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
         print('Error: $err');
       }
 
-      setState(() {
-        currentNo = currentNo + 1;
-      });
+      // setState(() {
+      //   currentNo = currentNo + 1;
+      // });
 
-      try {
-        if (!context.mounted) return;
-        final foundScrollables = _findScrollableWidgets(context);
+      // try {
+      //   if (!context.mounted) return;
+      //   final foundScrollables = _findScrollableWidgets(context);
 
-        if (foundScrollables.isNotEmpty) {
-          print('It has scrollable! Number of scrollable widgets with key: ${foundScrollables.length}');
-          // Iterate through each scrollable widget and start scrolling
-          for (final scrollable in foundScrollables) {
-            print('Scrolling each item: ${scrollable.widget.key ?? '*no key*'} at depth ${scrollable.depth}');
-            await scrollEachItem(scrollable.widget, scrollable.depth, foundScrollables);
-          }
-        } else {
-          print('It has no scrollable!');
-        }
+      //   if (foundScrollables.isNotEmpty) {
+      //     print('It has scrollable! Number of scrollable widgets with key: ${foundScrollables.length}');
+      //     // Iterate through each scrollable widget and start scrolling
+      //     for (final scrollable in foundScrollables) {
+      //       print('Scrolling each item: ${scrollable.widget.key ?? '*no key*'} at depth ${scrollable.depth}');
+      //       await scrollEachItem(scrollable.widget, scrollable.depth, foundScrollables);
+      //     }
+      //   } else {
+      //     print('It has no scrollable!');
+      //   }
 
-        print('All screenshots taken.');
+      //   print('All screenshots taken.');
 
-        var snackBar3 = const SnackBar(
-          content: Text('Screenshots taken.'),
-        );
+      //   var snackBar3 = const SnackBar(
+      //     content: Text('Screenshots taken.'),
+      //   );
 
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(snackBar3);
+      //   if (!context.mounted) return;
+      //   ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      //   ScaffoldMessenger.of(context).showSnackBar(snackBar3);
 
-        setState(() {
-          status = 0;
-        });
-        widget.setLoading(false);
-      } catch (err) {
-        print('Error: $err');
-      }
+      //   setState(() {
+      //     status = 0;
+      //   });
+      //   widget.setLoading(false);
+      // } catch (err) {
+      //   print('Error: $err');
+      // }
     }
 
     List<CampaignProjectModel> campaigns = [
@@ -856,7 +921,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                                       status = 1;
                                     });
                                     
-                                    pressHandler(child, context);
+                                    pressHandler(child, widget.currentContext);
                                   }
                                   else if (!(context != null && child != null)) {
                                     setState(() {

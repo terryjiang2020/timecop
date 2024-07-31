@@ -132,7 +132,6 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
     print('pressHandler projectId: $projectId');
 
     String deleteUrl = 'https://testserver.visualexact.com/api/designcomp/extension/screenshot/clear/$projectId';
-    String endUrl = 'https://testserver.visualexact.com/api/designcomp/project/loading/update/$projectId/3';
 
     try {
       setState(() {
