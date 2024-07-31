@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/project.dart';
 
@@ -53,6 +54,8 @@ class _ProjectEditorState extends State<ProjectEditor> {
       child: Form(
         key: _formKey,
         child: ListView(
+          key: listViewKey5,
+          controller: listViewController5,
           shrinkWrap: true,
           children: <Widget>[
             Text(

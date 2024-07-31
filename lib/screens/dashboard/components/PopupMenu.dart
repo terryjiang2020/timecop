@@ -41,7 +41,7 @@ class PopupMenu extends StatelessWidget {
         switch (item) {
           case MenuItem.projects:
             Navigator.of(context).push(MaterialPageRoute<ProjectsScreen>(
-              builder: (_) => const ProjectsScreen(),
+              builder: (_) => ProjectsScreen(),
             ));
             break;
           case MenuItem.reports:

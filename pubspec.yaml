@@ -46,6 +46,9 @@ dependencies:
   permission_handler: ^11.0.0
   dynamic_color: ^1.6.8
   pdf: ^3.10.6
+  dio: ^5.4.0
+  get: ^4.6.6
+  screenshot: ^2.3.0
 
 dependency_overrides:
   intl: 0.18.1

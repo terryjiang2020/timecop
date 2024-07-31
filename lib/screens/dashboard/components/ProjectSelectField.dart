@@ -81,7 +81,7 @@ class _ProjectSelectFieldState extends State<ProjectSelectField> {
                                   Navigator.of(context).pop();
                                   Navigator.of(context)
                                       .push(MaterialPageRoute<ProjectsScreen>(
-                                    builder: (_) => const ProjectsScreen(),
+                                    builder: (_) => ProjectsScreen(),
                                   ));
                                 },
                               )),

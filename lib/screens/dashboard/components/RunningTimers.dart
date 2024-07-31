@@ -17,6 +17,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timecop/blocs/timers/bloc.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/timer_entry.dart';
 import 'package:timecop/screens/dashboard/bloc/dashboard_bloc.dart';
@@ -95,6 +96,8 @@ class RunningTimers extends StatelessWidget {
                           constraints: BoxConstraints(
                               maxHeight: MediaQuery.sizeOf(context).height / 4),
                           child: ListView(
+                            key: listViewKey1,
+                            controller: listViewController1,
                             shrinkWrap: true,
                             children: runningTimers
                                 .map((timer) => RunningTimerRow(

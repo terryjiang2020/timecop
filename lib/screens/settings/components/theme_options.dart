@@ -16,12 +16,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:timecop/blocs/theme/theme_bloc.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/theme_type.dart';
 
 class ThemeOptions extends StatelessWidget {
   final ThemeBloc bloc;
-  const ThemeOptions({Key? key, required this.bloc}) : super(key: key);
+  ThemeOptions({Key? key, required this.bloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +42,8 @@ class ThemeOptions extends StatelessWidget {
               ThemeType? newTheme = await showModalBottomSheet<ThemeType>(
                   context: context,
                   builder: (context) => ListView(
+                        key: listViewKey11,
+                        controller: listViewController11,
                         shrinkWrap: true,
                         children: <Widget>[
                           RadioListTile<ThemeType>(
