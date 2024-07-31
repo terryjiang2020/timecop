@@ -310,7 +310,11 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                     )
                                   ],
                                 ),
-                                floatingActionButton: const VisualMatchButton(),
+                                floatingActionButton: VisualMatchButton(child: child, setLoading: (bool value) {
+                                  setState(() {
+                                    loading = value;
+                                  });
+                                }),
                                 floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
                               );
                             },
