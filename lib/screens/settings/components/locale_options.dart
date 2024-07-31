@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:timecop/blocs/locale/locale_bloc.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 
 class LocaleOptions extends StatelessWidget {
@@ -38,6 +39,8 @@ class LocaleOptions extends StatelessWidget {
               Locale? newLocale = await showModalBottomSheet<Locale>(
                   context: context,
                   builder: (context) => ListView(
+                        controller: listViewController10,
+                        key: listViewKey10,
                         shrinkWrap: true,
                         children: <Widget>[
                           RadioListTile<Locale?>(
