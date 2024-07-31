@@ -73,6 +73,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
     int totalScreenshotsCount = 0;
     int currentNo = 0;
     int status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
+    BuildContext dialogContext = navigatorKey.currentContext!;
 
     bool isScrollable(dynamic widget) {
       // Check if the widget is a scrollable type and if it has a controller
@@ -465,7 +466,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
             });
             
             if (context.mounted) {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
             }
           }
           else {
