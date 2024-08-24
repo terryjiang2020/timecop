@@ -18,14 +18,15 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:timecop/global_key.dart';
+import 'package:flutter/rendering.dart';
+import '/global_key.dart';
 
-class VisualMatchButton extends StatefulWidget {
+class VisualExactButton extends StatefulWidget {
   final Widget? child;
   final Function setLoading;
   final BuildContext currentContext;
 
-  const VisualMatchButton({
+  const VisualExactButton({
     Key? key,
     required this.child,
     required this.setLoading,
@@ -33,7 +34,43 @@ class VisualMatchButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<VisualMatchButton> createState() => _VisualMatchButtonState();
+  State<VisualExactButton> createState() => _VisualMatchButtonState();
+}
+
+class WidgetStyles {
+  final String? color;
+  final String? backgroundColor;
+  final double? fontSize;
+  final String? fontFamily;
+  final int? fontWeight;
+  final String? text;
+  final Offset position;
+  final Size size;
+  final String? name;
+
+  WidgetStyles({
+    this.color,
+    this.backgroundColor,
+    this.fontSize,
+    this.fontFamily,
+    this.fontWeight,
+    this.text,
+    this.name,
+    required this.position,
+    required this.size
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'color': color, // Convert Color to its integer value
+      'backgroundColor': backgroundColor, // Assuming it's serializable
+      'fontSize': fontSize,
+      'fontFamily': fontFamily,
+      'text': text,
+      'position': {'dx': position.dx, 'dy': position.dy},
+      'size': {'width': size.width, 'height': size.height},
+    };
+  }
 }
 
 const vmPrimaryColor = Color(0xff007E60);
@@ -54,7 +91,445 @@ final options = Options(
 
 const uploadUrl = 'https://testserver.visualexact.com/api/designcomp/extension/screenshot/base64';
 
-class _VisualMatchButtonState extends State<VisualMatchButton> {
+String toCssHexColor(Color color) {
+  return '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+}
+
+List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
+  List<WidgetItem> foundWidgets = [];
+  List<WidgetStyles> foundStyles = [];
+  print('_findVisibleWidgets is triggered');
+
+  void visitor(Element element, int depth) {
+
+    // Check if the widget is visible
+    final bool condition2 = 
+      element.renderObject != null &&
+      element.renderObject!.attached;
+    
+    if (condition2) {
+      foundWidgets.add(
+        WidgetItem(
+          widget: element.widget,
+          renderObject: element.renderObject ?? null,
+          depth: depth,
+          used: false
+        )
+      );
+
+    }
+
+    element.visitChildren((child) {
+      visitor(child, depth + 1);
+    });
+  }
+
+  try {
+    context.visitChildElements((element) {
+      visitor(element, 1); // Start with depth 1
+    });
+  } on Exception catch (e) {
+    print('_findScrollableWidgets visitChildElements error: $e');
+  }
+
+  for (final widget in foundWidgets) {
+    if (widget.renderObject == null || widget.renderObject is! RenderBox) {
+      print('Widget: ${widget.widget} has no renderObject or is not in the correct type');
+      continue;
+    }
+    final RenderBox renderBox = widget.renderObject as RenderBox;
+    final Offset position = renderBox.localToGlobal(Offset.zero);
+    final Size size = renderBox.size;
+
+    print('position: $position');
+    print('size: $size');
+    print('Widget type: ${widget.widget.runtimeType}');
+
+    var style = WidgetStyles(
+      backgroundColor: null,
+      color: null,
+      fontSize: null,
+      fontFamily: null,
+      fontWeight: null,
+      text: '',
+      position: position,
+      size: size
+    );
+
+    if (widget.widget is Text) {
+      final Text textWidget = widget.widget as Text;
+      final color = textWidget.style?.color;
+      print('Text color: $color');
+      final backgroundColor = textWidget.style?.backgroundColor;
+      final fontSize = textWidget.style?.fontSize;
+      print('Text fontSize: $fontSize');
+      final text = textWidget.data;
+      print('Text: $text');
+      final fontFamily = textWidget.style?.fontFamily;
+      print('Text fontFamily: $fontFamily');
+      final fontWeight = textWidget.style?.fontWeight;
+      print('Text fontWeight: $fontWeight');
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: color != null ? toCssHexColor(color) : null,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        fontWeight: fontWeight != null ? fontWeight.index * 100 : null,
+        text: text,
+        position: position,
+        size: size,
+        name: 'Text'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is SelectableText) {
+      final SelectableText textWidget = widget.widget as SelectableText;
+      final color = textWidget.style?.color;
+      print('Text color: $color');
+      final backgroundColor = textWidget.style?.backgroundColor;
+      final fontSize = textWidget.style?.fontSize;
+      print('Text fontSize: $fontSize');
+      final text = textWidget.data;
+      print('Text: $text');
+      final fontFamily = textWidget.style?.fontFamily;
+      print('Text fontFamily: $fontFamily');
+      final fontWeight = textWidget.style?.fontWeight;
+      print('Text fontWeight: $fontWeight');
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: color != null ? toCssHexColor(color) : null,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        fontWeight: fontWeight != null ? fontWeight.index * 100 : null,
+        text: text,
+        position: position,
+        size: size,
+        name: 'SelectableText'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is TextField) {
+      final TextField textWidget = widget.widget as TextField;
+      final color = textWidget.style?.color;
+      print('Text color: $color');
+      final backgroundColor = textWidget.style?.backgroundColor;
+      final fontSize = textWidget.style?.fontSize;
+      print('Text fontSize: $fontSize');
+      final fontFamily = textWidget.style?.fontFamily;
+      print('Text fontFamily: $fontFamily');
+      final fontWeight = textWidget.style?.fontWeight;
+      print('Text fontWeight: $fontWeight');
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: color != null ? toCssHexColor(color) : null,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        fontWeight: fontWeight != null ? fontWeight.index * 100 : null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'TextField'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is Chip) {
+      final Chip textWidget = widget.widget as Chip;
+      final color = textWidget.labelStyle?.color;
+      print('Text color: $color');
+      final backgroundColor = textWidget.backgroundColor;
+      final fontSize = textWidget.labelStyle?.fontSize;
+      print('Text fontSize: $fontSize');
+      final fontFamily = textWidget.labelStyle?.fontFamily;
+      print('Text fontFamily: $fontFamily');
+      final fontWeight = textWidget.labelStyle?.fontWeight;
+      print('Text fontWeight: $fontWeight');
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: color != null ? toCssHexColor(color) : null,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        fontWeight: fontWeight != null ? fontWeight.index * 100 : null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'Chip'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is Tooltip) {
+      final Tooltip textWidget = widget.widget as Tooltip;
+      final color = textWidget.textStyle?.color;
+      print('Text color: $color');
+      final fontSize = textWidget.textStyle?.fontSize;
+      print('Text fontSize: $fontSize');
+      final fontFamily = textWidget.textStyle?.fontFamily;
+      print('Text fontFamily: $fontFamily');
+      final fontWeight = textWidget.textStyle?.fontWeight;
+      print('Text fontWeight: $fontWeight');
+      style = WidgetStyles(
+        backgroundColor: null,
+        color: color != null ? toCssHexColor(color) : null,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        fontWeight: fontWeight != null ? fontWeight.index * 100 : null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'Tooltip'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is Dialog) {
+      final Dialog textWidget = widget.widget as Dialog;
+      final backgroundColor = textWidget.backgroundColor;
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'Dialog'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is BottomNavigationBar) {
+      final BottomNavigationBar textWidget = widget.widget as BottomNavigationBar;
+      final backgroundColor = textWidget.backgroundColor;
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'BottomNavigationBar'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is ListTile) {
+      final ListTile textWidget = widget.widget as ListTile;
+      final backgroundColor = textWidget.tileColor;
+      final color = textWidget.textColor;
+      final fontSize = textWidget.titleTextStyle?.fontSize;
+      final fontFamily = textWidget.titleTextStyle?.fontFamily;
+      final fontWeight = textWidget.titleTextStyle?.fontWeight;
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: color != null ? toCssHexColor(color) : null,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        fontWeight: fontWeight != null ? fontWeight.index * 100 : null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'ListTile'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is Card) {
+      final Card textWidget = widget.widget as Card;
+      final backgroundColor = textWidget.color;
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'Card'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is TextButton) {
+      final TextButton textWidget = widget.widget as TextButton;
+      final MaterialStateProperty<Color?>? backgroundColorProperty = textWidget.style?.backgroundColor;
+
+      // Resolve the background color for a specific state or the default state
+      final Color? backgroundColor = backgroundColorProperty?.resolve({});
+
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'TextButton'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is ElevatedButton) {
+      final ElevatedButton textWidget = widget.widget as ElevatedButton;
+      final MaterialStateProperty<Color?>? backgroundColorProperty = textWidget.style?.backgroundColor;
+
+      // Resolve the background color for a specific state or the default state
+      final Color? backgroundColor = backgroundColorProperty?.resolve({});
+      print('Text color: $backgroundColor');
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'ElevatedButton'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is OutlinedButton) {
+      final OutlinedButton textWidget = widget.widget as OutlinedButton;
+      final MaterialStateProperty<Color?>? backgroundColorProperty = textWidget.style?.backgroundColor;
+
+      // Resolve the background color for a specific state or the default state
+      final Color? backgroundColor = backgroundColorProperty?.resolve({});
+      print('Text color: $backgroundColor');
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'OutlinedButton'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is IconButton) {
+      final IconButton textWidget = widget.widget as IconButton;
+      final MaterialStateProperty<Color?>? backgroundColorProperty = textWidget.style?.backgroundColor;
+
+      // Resolve the background color for a specific state or the default state
+      final Color? backgroundColor = backgroundColorProperty?.resolve({});
+      print('Text color: $backgroundColor');
+      style = WidgetStyles(
+        backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'IconButton'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is Container) {
+      final Container textWidget = widget.widget as Container;
+      final color = textWidget.color;
+      style = WidgetStyles(
+        backgroundColor: color != null ? toCssHexColor(color) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'Container'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is DecoratedBox) {
+      style = WidgetStyles(
+        backgroundColor: null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'DecoratedBox'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is AppBar) {
+      final AppBar textWidget = widget.widget as AppBar;
+      style = WidgetStyles(
+        backgroundColor: textWidget.backgroundColor != null ? toCssHexColor(textWidget.backgroundColor!) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'AppBar'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is Chip) {
+      final Chip textWidget = widget.widget as Chip;
+      style = WidgetStyles(
+        backgroundColor: textWidget.backgroundColor != null ? toCssHexColor(textWidget.backgroundColor!) : null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'Chip'
+      );
+      foundStyles.add(style);
+    }
+    else if (widget.widget is SizedBox) {
+      final SizedBox textWidget = widget.widget as SizedBox;
+      style = WidgetStyles(
+        backgroundColor: null,
+        color: null,
+        fontSize: null,
+        fontFamily: null,
+        fontWeight: null,
+        text: '',
+        position: position,
+        size: size,
+        name: 'SizedBox'
+      );
+      foundStyles.add(style);
+    }
+    else {
+      print('Widget type not acceptable: ${widget.widget.runtimeType}');
+    }
+  }
+
+  print('Number of widgets found: ${foundWidgets.length}');
+
+  final List<Map<String, dynamic>> widgetJson = [];
+
+  for (final style in foundStyles) {
+    widgetJson.add({
+      'color': style.color, // Convert Color to its integer value
+      'backgroundColor': style.backgroundColor, // Assuming it's serializable
+      'fontSize': style.fontSize,
+      'fontFamily': style.fontFamily,
+      'fontWeight': style.fontWeight,
+      'text': style.text,
+      'position': {'dx': style.position.dx, 'dy': style.position.dy},
+      'size': {'width': style.size.width, 'height': style.size.height},
+    });
+  }
+
+  return widgetJson;
+}
+
+bool _isDialogOpen = false;
+
+class _VisualMatchButtonState extends State<VisualExactButton> {
 
   List<CampaignProjectModel> items = [];
   bool dialogOpened = false;
@@ -96,7 +571,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
         (widget.key as GlobalKey).currentContext != null &&
         (widget.key as GlobalKey).currentContext!.findRenderObject() != null &&
         (widget.key as GlobalKey).currentContext!.findRenderObject()!.attached;
-        print('widget ${widget.key} checkpoint 1');
+        // print('widget ${widget.key} checkpoint 1');
 
       if (
         widget != null &&
@@ -107,14 +582,14 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
         condition2
       ) {
         
-        print('widget ${widget.key} checkpoint 2');
+        // print('widget ${widget.key} checkpoint 2');
         final dynamic renderObject = widget.key.currentContext!.findRenderObject();
         final dynamic scrollableContext = widget.key.currentContext;
         if (
           scrollableContext is BuildContext &&
           renderObject is RenderBox
         ) {
-          print('widget ${widget.key} checkpoint 3');
+          // print('widget ${widget.key} checkpoint 3');
           // final RenderAbstractViewport viewport = RenderAbstractViewport.of(renderObject);
           try {
             final ScrollableState scrollableState = Scrollable.of(scrollableContext);
@@ -126,9 +601,9 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
             // final bool inViewport = bounds.top < viewportHeight + offset && bounds.bottom > offset;
             final bool inViewport = bounds.top >= 0 && bounds.top < viewportHeight;
 
-            print('widget ${widget.key} checkpoint 3: condition 1: $condition1');
-            print('widget ${widget.key} checkpoint 3: condition 2: $condition2');
-            print('widget ${widget.key} checkpoint 3: inViewport: $inViewport');
+            // print('widget ${widget.key} checkpoint 3: condition 1: $condition1');
+            // print('widget ${widget.key} checkpoint 3: condition 2: $condition2');
+            // print('widget ${widget.key} checkpoint 3: inViewport: $inViewport');
 
             if (!inViewport) {
               print('widget ${widget.key} is not in viewport');
@@ -148,7 +623,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
         }
       }
       else {
-        print('widget ${widget.key} checkpoint 4');
+        // print('widget ${widget.key} checkpoint 4');
         if (widget == null) {
           print('widget is null');
         }
@@ -183,7 +658,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           print('condition2 is false');
         }
       }
-      print('widget ${widget.key} checkpoint 5');
+      // print('widget ${widget.key} checkpoint 5');
 
       return false;
     }
@@ -191,7 +666,8 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
     Future<int> scrollEachItem(
       dynamic child,
       int currentDepth,
-      List<WidgetItem> allWidgets
+      List<WidgetItem> allWidgets,
+      BuildContext currentContext
     ) async {
       print('scrollEachItem is triggered');
       print('child: $child');
@@ -245,13 +721,20 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
               final key = child.key;
               final keyToString = key != null ? key.toString().replaceFirst('[String <', '').replaceFirst('>]', '') : 'null';
               print('keyToString: $keyToString');
+              final widgetItems = _findVisibleWidgets(currentContext);
+              print('widgetItems.length: ${widgetItems.length}');
+
+              // Convert the list to a JSON string
+              String jsonString = jsonEncode(widgetItems);
+
               return Dio().post('https://testserver.visualexact.com/api/designcomp/extension/screenshot/base64', data: {
                 'items': [
                   {
                     'name': 'scrollable_${currentNo}_${DateTime.now().millisecondsSinceEpoch}',
                     'base64': 'data:image/png;base64,$base64Value',
                     'itemId': targetedItemIds[currentNo],
-                    'relevantAction': 'Scroll down at the center of Widget (key: $keyToString) for $maxScrollableExtend pixels'
+                    'relevantAction': 'Scroll down at the center of Widget (key: $keyToString) for $maxScrollableExtend pixels',
+                    'visibleWidgets': jsonString
                   }
                 ],
               },
@@ -276,7 +759,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                     print('isScrollable(widgetItem.widget): ${isScrollable(widgetItem.widget)}');
                     if (widgetItem.depth > currentDepth && isScrollable(widgetItem.widget)) {
                       print('Switching to widget with higher depth: ${widgetItem.depth}');
-                      await scrollEachItem(widgetItem.widget, widgetItem.depth, allWidgets);
+                      await scrollEachItem(widgetItem.widget, widgetItem.depth, allWidgets, currentContext);
                     }
                   }
 
@@ -294,26 +777,6 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           }).catchError((onError) {
             print('Capture Error: $onError');
           });
-
-          // print('currentNo: $currentNo');
-
-          // setState(() {
-          //   currentNo = currentNo + 1;
-          // });
-
-          // print('allWidgets.length: ${allWidgets.length}');
-          // print('currentDepth: $currentDepth');
-          // // Check for a new widget with a higher depth
-          // for (var widgetItem in allWidgets) {
-          //   print('widgetItem.depth: ${widgetItem.depth}');
-          //   print('widgetItem.widget.key: ${widgetItem.widget.key}');
-          //   print('widgetItem.widget.key: ${widgetItem.widget.key}');
-          //   print('isScrollable(widgetItem.widget): ${isScrollable(widgetItem.widget)}');
-          //   if (widgetItem.depth > currentDepth && isScrollable(widgetItem.widget)) {
-          //     print('Switching to widget with higher depth: ${widgetItem.depth}');
-          //     await scrollEachItem(widgetItem.widget, widgetItem.depth, allWidgets);
-          //   }
-          // }
         }
       }
 
@@ -347,6 +810,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
             print('Scrollable found without key: ${element.widget} at depth: $depth, abort');
           }
         }
+
         element.visitChildren((child) {
           visitor(child, depth + 1);
         });
@@ -362,11 +826,20 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
 
       foundScrollables.sort((a, b) => b.depth.compareTo(a.depth));
 
+      print('Number of scrollable widgets found: ${foundScrollables.length}');
+
+      if (foundScrollables.length < 10) {
+        print('Scrollable widgets key: ${foundScrollables.map((e) => e.widget.key)}');
+        print('Scrollable widgets depth: ${foundScrollables.map((e) => e.depth)}');
+      }
+
       return foundScrollables;
     }
 
     Future<void> pressHandler(Widget? child, BuildContext currentContext) async {
       print('Button pressed, updated 3');
+
+      // Test Fetch All Widgets END
 
       int projectId = selectedProject.id;
       double requiredScreenWidth = selectedProject.width.toDouble();
@@ -467,6 +940,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
             
             if (context.mounted) {
               Navigator.of(dialogContext).pop();
+              _isDialogOpen = false;
             }
           }
           else {
@@ -528,6 +1002,10 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
           status = 2;
         });
 
+        await Future.delayed(const Duration(seconds: 1), () {
+          print('One second has passed.'); // Prints after 1 second.
+        });
+
         // Initial screenshot
         await screenshotController
         .capture(delay: const Duration(milliseconds: 1000))
@@ -539,6 +1017,11 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
             return Dio().delete(deleteUrl, options: options)
             .then((res) {
               print('Screenshot deleted successfully.');
+              final widgetItems = _findVisibleWidgets(currentContext);
+              print('widgetItems.length: ${widgetItems.length}');
+
+              // Convert the list to a JSON string
+              String jsonString = jsonEncode(widgetItems);
 
               return Dio().post(uploadUrl, data: {
                 'items': [
@@ -547,7 +1030,8 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                     'base64': 'data:image/png;base64,$base64Value',
                     'itemId': targetedItemIds[currentNo],
                     'relevantAction': '',
-                    'projectId': projectId
+                    'projectId': projectId,
+                    'visibleWidgets': jsonString
                   }
                 ],
               },
@@ -571,7 +1055,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                     // Iterate through each scrollable widget and start scrolling
                     for (final scrollable in foundScrollables) {
                       print('Scrolling each item: ${scrollable.widget.key ?? '*no key*'} at depth ${scrollable.depth}');
-                      await scrollEachItem(scrollable.widget, scrollable.depth, foundScrollables);
+                      await scrollEachItem(scrollable.widget, scrollable.depth, foundScrollables, currentContext);
                     }
                   } else {
                     print('It has no scrollable!');
@@ -610,43 +1094,6 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
       } catch (err) {
         print('Error: $err');
       }
-
-      // setState(() {
-      //   currentNo = currentNo + 1;
-      // });
-
-      // try {
-      //   if (!context.mounted) return;
-      //   final foundScrollables = _findScrollableWidgets(context);
-
-      //   if (foundScrollables.isNotEmpty) {
-      //     print('It has scrollable! Number of scrollable widgets with key: ${foundScrollables.length}');
-      //     // Iterate through each scrollable widget and start scrolling
-      //     for (final scrollable in foundScrollables) {
-      //       print('Scrolling each item: ${scrollable.widget.key ?? '*no key*'} at depth ${scrollable.depth}');
-      //       await scrollEachItem(scrollable.widget, scrollable.depth, foundScrollables);
-      //     }
-      //   } else {
-      //     print('It has no scrollable!');
-      //   }
-
-      //   print('All screenshots taken.');
-
-      //   var snackBar3 = const SnackBar(
-      //     content: Text('Screenshots taken.'),
-      //   );
-
-      //   if (!context.mounted) return;
-      //   ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      //   ScaffoldMessenger.of(context).showSnackBar(snackBar3);
-
-      //   setState(() {
-      //     status = 0;
-      //   });
-      //   widget.setLoading(false);
-      // } catch (err) {
-      //   print('Error: $err');
-      // }
     }
 
     List<CampaignProjectModel> campaigns = [
@@ -701,8 +1148,13 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
       ),
     ];
 
+    if (_isDialogOpen) return;
+
+    _isDialogOpen = true;
+
     return showDialog(
       context: navigatorKey.currentContext!,
+      barrierDismissible: false,
       builder: (context) {
 
         return StatefulBuilder(
@@ -732,79 +1184,88 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                         width: double.infinity,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                          child: DropdownButton<String>(
-                            hint: const Text('Select Campaign'),
-                            onChanged: (newValue) {
-                              final value = campaigns.firstWhere((element) => element.name == newValue);
-                              setState(() {
-                                selectedCampaign = value ?? defaultCampaign;
-                                image = '';
-                                errorCode = 0;
-                              });
+                          child: new Theme(
+                            data: Theme.of(context).copyWith(
+                              canvasColor: Colors.white,
+                            ),
+                            child: DropdownButton<String>(
+                              hint: const Text('Select Campaign'),
+                              onChanged: (newValue) {
+                                final value = campaigns.firstWhere((element) => element.name == newValue);
+                                setState(() {
+                                  selectedCampaign = value ?? defaultCampaign;
+                                  image = '';
+                                  errorCode = 0;
+                                });
 
-                              var newProjects = <CampaignProjectModel>[
-                                CampaignProjectModel(
-                                  id: 0,
-                                  name: 'Select a Project',
-                                ),
-                              ];
+                                var newProjects = <CampaignProjectModel>[
+                                  CampaignProjectModel(
+                                    id: 0,
+                                    name: 'Select a Project',
+                                  ),
+                                ];
 
-                              if (value != null && value.id != 0) {
-                                try {
-                                  Dio().get('https://testserver.visualexact.com/api/designcomp/project/incompleted/list/${value.id}', options: options)
-                                  .then((res) {
-                                    print('onSelectedCampaign res.statusCode: ${res.statusCode}');
-                                    if (res.statusCode == 200 && res.data != null) {
-                                      print('onSelectedCampaign res.data.success: ${res.data['success']}');
-                                      if (res.data['success'] != null && res.data['success'] == true) {
-                                        newProjects = [
-                                          CampaignProjectModel(
-                                            id: 0,
-                                            name: 'Select a Project',
-                                          ),
-                                        ];
-                                        
-                                        for (final item in res.data['result']['projects']) {
-                                          print('onSelectedCampaign item.width: ${item['width'].toString()}');
-                                          print('onSelectedCampaign item.height: ${item['height'].toString()}');
-                                          print('onSelectedCampaign item.screenshot: ${item['screenshot']}');
-                                          newProjects.add(
+                                if (value != null && value.id != 0) {
+                                  try {
+                                    Dio().get('https://testserver.visualexact.com/api/designcomp/project/incompleted/list/${value.id}', options: options)
+                                    .then((res) {
+                                      print('onSelectedCampaign res.statusCode: ${res.statusCode}');
+                                      if (res.statusCode == 200 && res.data != null) {
+                                        print('onSelectedCampaign res.data.success: ${res.data['success']}');
+                                        if (res.data['success'] != null && res.data['success'] == true) {
+                                          newProjects = [
                                             CampaignProjectModel(
-                                              id: item['id'],
-                                              name: item['name'],
-                                              width: item['width'] != null ? double.parse(item['width'].toString()) : 0.0,
-                                              height: item['height'] != null ? double.parse(item['height'].toString()) : 0.0,
-                                              screenshot: item['screenshot'] != null ? 'https://testserver.visualexact.com/api/general/files/${(item['screenshot'] as String).replaceAll('/', '%2F')}' : '',
+                                              id: 0,
+                                              name: 'Select a Project',
                                             ),
-                                          );
+                                          ];
+                                          
+                                          for (final item in res.data['result']['projects']) {
+                                            print('onSelectedCampaign item.width: ${item['width'].toString()}');
+                                            print('onSelectedCampaign item.height: ${item['height'].toString()}');
+                                            print('onSelectedCampaign item.screenshot: ${item['screenshot']}');
+                                            newProjects.add(
+                                              CampaignProjectModel(
+                                                id: item['id'],
+                                                name: item['name'],
+                                                width: item['width'] != null ? double.parse(item['width'].toString()) : 0.0,
+                                                height: item['height'] != null ? double.parse(item['height'].toString()) : 0.0,
+                                                screenshot: item['screenshot'] != null ? 'https://testserver.visualexact.com/api/general/files/${(item['screenshot'] as String).replaceAll('/', '%2F')}' : '',
+                                              ),
+                                            );
+                                          }
                                         }
                                       }
-                                    }
-                                    setState(() {
-                                      selectedProject = defaultProject;
-                                      projects = newProjects;
+                                      setState(() {
+                                        selectedProject = defaultProject;
+                                        projects = newProjects;
+                                      });
                                     });
-                                  });
-                                } catch (e) {
-                                  print('onSelectedCampaign Error: $e');
-                                  setState(() => projects = [
-                                    CampaignProjectModel(
-                                      id: 0,
-                                      name: 'Select a Project'
-                                    ),
-                                  ]);
+                                  } catch (e) {
+                                    print('onSelectedCampaign Error: $e');
+                                    setState(() => projects = [
+                                      CampaignProjectModel(
+                                        id: 0,
+                                        name: 'Select a Project'
+                                      ),
+                                    ]);
+                                  }
                                 }
-                              }
-                            },
-                            value: selectedCampaign.name,
-                            isExpanded: true, // This moves the icon to the end
-                            items: [
-                              for (var data in campaigns)
-                                DropdownMenuItem(
-                                  value: data.name,
-                                  child: Text(data.name),
-                                ),
-                            ],
+                              },
+                              value: selectedCampaign.name,
+                              isExpanded: true, // This moves the icon to the end
+                              items: [
+                                for (var data in campaigns)
+                                  DropdownMenuItem(
+                                    value: data.name,
+                                    child: Text(data.name),
+                                  ),
+                              ],
+                              style: const TextStyle(
+                                color: Colors.black,
+                                backgroundColor: Colors.white
+                              )
+                            ),
                           ),
                         ),
                       ),
@@ -812,28 +1273,37 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                         width: double.infinity,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                          child: DropdownButton<String>(
-                            hint: const Text('Select Project'),
-                            onChanged: (value) {
-                              final project = projects.firstWhere((element) => element.name == value);
-                              setState(() {
-                                selectedProject = project;
-                                image = project.screenshot;
-                                errorCode = 0;
-                              });
+                          child: new Theme(
+                            data: Theme.of(context).copyWith(
+                              canvasColor: Colors.white,
+                            ),
+                            child: DropdownButton<String>(
+                              hint: const Text('Select Project'),
+                              onChanged: (value) {
+                                final project = projects.firstWhere((element) => element.name == value);
+                                setState(() {
+                                  selectedProject = project;
+                                  image = project.screenshot;
+                                  errorCode = 0;
+                                });
 
-                              print('New Project: ${project.name}');
-                            },
-                            value: selectedProject.name,
-                            isExpanded: true, // This moves the icon to the end
-                            items: [
-                              for (var data in projects)
-                                DropdownMenuItem(
-                                  value: data.name,
-                                  child: Text(data.name),
-                                ),
-                            ],
-                          ),
+                                print('New Project: ${project.name}');
+                              },
+                              value: selectedProject.name,
+                              isExpanded: true, // This moves the icon to the end
+                              items: [
+                                for (var data in projects)
+                                  DropdownMenuItem(
+                                    value: data.name,
+                                    child: Text(data.name),
+                                  ),
+                              ],
+                              style: const TextStyle(
+                                color: Colors.black,
+                                backgroundColor: Colors.white
+                              )
+                            ),
+                          )
                         ),
                       ),
                       Visibility(
@@ -892,6 +1362,7 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                   dialogOpened = false;
+                                  _isDialogOpen = false;
                                 },
                                 child: const Text(
                                   'Cancel',
@@ -960,9 +1431,12 @@ class _VisualMatchButtonState extends State<VisualMatchButton> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      key: const Key("VisualMatchButton"),
+      key: const Key("VisualExactButton"),
       onPressed: () {
         print('Visual Match Button Pressed');
+        if (_isDialogOpen) {
+          return;
+        }
         _showMyDialog();
       },
       backgroundColor: vmPrimaryColor,
@@ -991,8 +1465,25 @@ String uint8ListToBase64(Uint8List uint8List) {
 }
 
 class WidgetItem {
-  WidgetItem({required this.widget, required this.depth, this.used = false});
+  WidgetItem({
+    required this.widget,
+    required this.depth,
+    this.used = false,
+    this.renderObject,
+    this.style,
+  });
   final dynamic widget;
   final int depth;
   bool used;
+  RenderObject? renderObject;
+  WidgetStyles? style;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'widget': widget, // Assuming widget is serializable or convert it
+      'depth': depth,
+      'used': used,
+      'style': style?.toJson(), // Use the toJson method from WidgetStyles
+    };
+  }
 }

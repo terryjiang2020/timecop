@@ -45,7 +45,7 @@ import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:timecop/data_providers/data/database_provider.dart';
 import 'package:timecop/data_providers/settings/shared_prefs_settings_provider.dart';
 
-import 'screens/dashboard/components/VisualMatchButton.dart';
+import 'screens/dashboard/components/VisualExactButton.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -310,7 +310,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                     )
                                   ],
                                 ),
-                                floatingActionButton: VisualMatchButton(
+                                floatingActionButton: VisualExactButton(
                                   child: child,
                                   setLoading: (bool value) {
                                     setState(() {
