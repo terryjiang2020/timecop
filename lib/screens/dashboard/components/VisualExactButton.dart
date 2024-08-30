@@ -18,7 +18,6 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '/global_key.dart';
 
 class VisualExactButton extends StatefulWidget {
@@ -81,7 +80,7 @@ class ApiRes {
   final List<CampaignProjectModel> result;
 }
 
-const apiToken = '2957b7c0-2dc0-11ef-940e-f98a7ded80891718748882236'; // Use a valid API Token here
+const apiToken = '67fd3d00-2439-11ef-bef2-dbb7af0bf2601717701444816'; // Use a valid API Token here
 
 final options = Options(
   headers: {
@@ -134,16 +133,16 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
 
   for (final widget in foundWidgets) {
     if (widget.renderObject == null || widget.renderObject is! RenderBox) {
-      print('Widget: ${widget.widget} has no renderObject or is not in the correct type');
+      // print('Widget: ${widget.widget} has no renderObject or is not in the correct type');
       continue;
     }
     final RenderBox renderBox = widget.renderObject as RenderBox;
     final Offset position = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
-    print('position: $position');
-    print('size: $size');
-    print('Widget type: ${widget.widget.runtimeType}');
+    // print('position: $position');
+    // print('size: $size');
+    // print('Widget type: ${widget.widget.runtimeType}');
 
     var style = WidgetStyles(
       backgroundColor: null,
@@ -159,16 +158,16 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
     if (widget.widget is Text) {
       final Text textWidget = widget.widget as Text;
       final color = textWidget.style?.color;
-      print('Text color: $color');
+      // print('Text color: $color');
       final backgroundColor = textWidget.style?.backgroundColor;
       final fontSize = textWidget.style?.fontSize;
-      print('Text fontSize: $fontSize');
+      // print('Text fontSize: $fontSize');
       final text = textWidget.data;
-      print('Text: $text');
+      // print('Text: $text');
       final fontFamily = textWidget.style?.fontFamily;
-      print('Text fontFamily: $fontFamily');
+      // print('Text fontFamily: $fontFamily');
       final fontWeight = textWidget.style?.fontWeight;
-      print('Text fontWeight: $fontWeight');
+      // print('Text fontWeight: $fontWeight');
       style = WidgetStyles(
         backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
         color: color != null ? toCssHexColor(color) : null,
@@ -185,16 +184,16 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
     else if (widget.widget is SelectableText) {
       final SelectableText textWidget = widget.widget as SelectableText;
       final color = textWidget.style?.color;
-      print('Text color: $color');
+      // print('Text color: $color');
       final backgroundColor = textWidget.style?.backgroundColor;
       final fontSize = textWidget.style?.fontSize;
-      print('Text fontSize: $fontSize');
+      // print('Text fontSize: $fontSize');
       final text = textWidget.data;
-      print('Text: $text');
+      // print('Text: $text');
       final fontFamily = textWidget.style?.fontFamily;
-      print('Text fontFamily: $fontFamily');
+      // print('Text fontFamily: $fontFamily');
       final fontWeight = textWidget.style?.fontWeight;
-      print('Text fontWeight: $fontWeight');
+      // print('Text fontWeight: $fontWeight');
       style = WidgetStyles(
         backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
         color: color != null ? toCssHexColor(color) : null,
@@ -211,14 +210,14 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
     else if (widget.widget is TextField) {
       final TextField textWidget = widget.widget as TextField;
       final color = textWidget.style?.color;
-      print('Text color: $color');
+      // print('Text color: $color');
       final backgroundColor = textWidget.style?.backgroundColor;
       final fontSize = textWidget.style?.fontSize;
-      print('Text fontSize: $fontSize');
+      // print('Text fontSize: $fontSize');
       final fontFamily = textWidget.style?.fontFamily;
-      print('Text fontFamily: $fontFamily');
+      // print('Text fontFamily: $fontFamily');
       final fontWeight = textWidget.style?.fontWeight;
-      print('Text fontWeight: $fontWeight');
+      // print('Text fontWeight: $fontWeight');
       style = WidgetStyles(
         backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
         color: color != null ? toCssHexColor(color) : null,
@@ -235,14 +234,14 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
     else if (widget.widget is Chip) {
       final Chip textWidget = widget.widget as Chip;
       final color = textWidget.labelStyle?.color;
-      print('Text color: $color');
+      // print('Text color: $color');
       final backgroundColor = textWidget.backgroundColor;
       final fontSize = textWidget.labelStyle?.fontSize;
-      print('Text fontSize: $fontSize');
+      // print('Text fontSize: $fontSize');
       final fontFamily = textWidget.labelStyle?.fontFamily;
-      print('Text fontFamily: $fontFamily');
+      // print('Text fontFamily: $fontFamily');
       final fontWeight = textWidget.labelStyle?.fontWeight;
-      print('Text fontWeight: $fontWeight');
+      // print('Text fontWeight: $fontWeight');
       style = WidgetStyles(
         backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
         color: color != null ? toCssHexColor(color) : null,
@@ -259,13 +258,13 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
     else if (widget.widget is Tooltip) {
       final Tooltip textWidget = widget.widget as Tooltip;
       final color = textWidget.textStyle?.color;
-      print('Text color: $color');
+      // print('Text color: $color');
       final fontSize = textWidget.textStyle?.fontSize;
-      print('Text fontSize: $fontSize');
+      // print('Text fontSize: $fontSize');
       final fontFamily = textWidget.textStyle?.fontFamily;
-      print('Text fontFamily: $fontFamily');
+      // print('Text fontFamily: $fontFamily');
       final fontWeight = textWidget.textStyle?.fontWeight;
-      print('Text fontWeight: $fontWeight');
+      // print('Text fontWeight: $fontWeight');
       style = WidgetStyles(
         backgroundColor: null,
         color: color != null ? toCssHexColor(color) : null,
@@ -373,7 +372,6 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
 
       // Resolve the background color for a specific state or the default state
       final Color? backgroundColor = backgroundColorProperty?.resolve({});
-      print('Text color: $backgroundColor');
       style = WidgetStyles(
         backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
         color: null,
@@ -393,7 +391,7 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
 
       // Resolve the background color for a specific state or the default state
       final Color? backgroundColor = backgroundColorProperty?.resolve({});
-      print('Text color: $backgroundColor');
+      // print('Text color: $backgroundColor');
       style = WidgetStyles(
         backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
         color: null,
@@ -413,7 +411,7 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
 
       // Resolve the background color for a specific state or the default state
       final Color? backgroundColor = backgroundColorProperty?.resolve({});
-      print('Text color: $backgroundColor');
+      // print('Text color: $backgroundColor');
       style = WidgetStyles(
         backgroundColor: backgroundColor != null ? toCssHexColor(backgroundColor) : null,
         color: null,
@@ -503,7 +501,7 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
       foundStyles.add(style);
     }
     else {
-      print('Widget type not acceptable: ${widget.widget.runtimeType}');
+      // print('Widget type not acceptable: ${widget.widget.runtimeType}');
     }
   }
 
@@ -528,6 +526,12 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
 }
 
 bool _isDialogOpen = false;
+PageInfo pageInfo = PageInfo(
+    url: null,
+    pageKey: null,
+    hasModal: false,
+    modalKey: null,
+);
 
 class _VisualMatchButtonState extends State<VisualExactButton> {
 
@@ -734,7 +738,11 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                     'base64': 'data:image/png;base64,$base64Value',
                     'itemId': targetedItemIds[currentNo],
                     'relevantAction': 'Scroll down at the center of Widget (key: $keyToString) for $maxScrollableExtend pixels',
-                    'visibleWidgets': jsonString
+                    'visibleWidgets': jsonString,
+                    'lastUsedUrl': pageInfo.url,
+                    'hasModal': pageInfo.hasModal ? pageInfo.hasModal : false,
+                    'pageKey': pageInfo.pageKey,
+                    'modalKey': pageInfo.modalKey,
                   }
                 ],
               },
@@ -846,6 +854,12 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
       double requiredScreenHeight = selectedProject.height.toDouble();
 
       print('pressHandler projectId: $projectId');
+
+      // Get the screen info
+
+      pageInfo = getPageInfo(currentContext);
+
+      print('pressHandler pageInfo: $pageInfo');
 
       String deleteUrl = 'https://testserver.visualexact.com/api/designcomp/extension/screenshot/clear/$projectId';
 
@@ -1031,7 +1045,11 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                     'itemId': targetedItemIds[currentNo],
                     'relevantAction': '',
                     'projectId': projectId,
-                    'visibleWidgets': jsonString
+                    'visibleWidgets': jsonString,
+                    'lastUsedUrl': pageInfo.url,
+                    'hasModal': pageInfo.hasModal ? pageInfo.hasModal : false,
+                    'pageKey': pageInfo.pageKey,
+                    'modalKey': pageInfo.modalKey,
                   }
                 ],
               },
@@ -1486,4 +1504,69 @@ class WidgetItem {
       'style': style?.toJson(), // Use the toJson method from WidgetStyles
     };
   }
+}
+
+// ChatGPT suggests using this to detect the routes
+
+class PageInfo {
+  final String? url;
+  final GlobalKey? pageKey;
+  final bool hasModal;
+  final GlobalKey? modalKey;
+
+  PageInfo({
+    required this.url,
+    required this.pageKey,
+    required this.hasModal,
+    required this.modalKey,
+  });
+
+  @override
+  String toString() {
+    return 'URL: $url, PageKey: $pageKey, hasModal: $hasModal, ModalKey: $modalKey';
+  }
+}
+
+PageInfo getPageInfo(BuildContext context) {
+  // Retrieve the current URL from the route settings
+  final url = ModalRoute.of(context)?.settings.name;
+  final url2 = Uri.base.toString();
+  print('url: $url');
+  print('url2: $url2');
+
+  // Automatically detect the page key (if any)
+  final pageKey = _findGlobalKeyForWidget(context);
+
+  // Check if a modal is currently open
+  bool hasModal = ModalRoute.of(context)?.isCurrent == false && Navigator.of(context).canPop();
+
+  // For this example, we'll assume you are managing modal keys separately
+  final modalKey = hasModal ? _findGlobalKeyForWidget(context) : null;
+
+  return PageInfo(
+    url: url,
+    pageKey: pageKey,
+    hasModal: hasModal,
+    modalKey: modalKey,
+  );
+}
+
+// Helper method to find the GlobalKey for the current widget
+GlobalKey? _findGlobalKeyForWidget(BuildContext context) {
+  try {
+    final widget = context.findAncestorWidgetOfExactType<Widget>();
+    if (widget != null) {
+      return widget.key as GlobalKey?;
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+}
+
+void exampleUsage(BuildContext context) {
+  // Fetch page and modal info automatically
+  PageInfo pageInfo = getPageInfo(context);
+
+  print(pageInfo);
 }
