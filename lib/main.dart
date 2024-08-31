@@ -65,14 +65,6 @@ Future<void> main() async {
   await runMain(settings, data, notifications);
 }
 
-/*import 'package:timecop/data_providers/data/mock_data_provider.dart';
-import 'package:timecop/data_providers/settings/mock_settings_provider.dart';
-Future<void> main() async {
-  final SettingsProvider settings = MockSettingsProvider();
-  final DataProvider data = MockDataProvider(Locale.fromSubtags(languageCode: "en"));
-  await runMain(settings, data);
-}*/
-
 Future<void> runMain(SettingsProvider settings, DataProvider data,
     NotificationsProvider notifications) async {
   // setup intl date formats?
