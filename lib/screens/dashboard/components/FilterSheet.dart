@@ -17,6 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timecop/blocs/projects/projects_bloc.dart';
 import 'package:timecop/components/DateRangeTile.dart';
 import 'package:timecop/components/ProjectTile.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/screens/dashboard/bloc/dashboard_bloc.dart';
 
 class FilterSheet extends StatelessWidget {
@@ -31,6 +32,8 @@ class FilterSheet extends StatelessWidget {
       bloc: dashboardBloc,
       builder: (BuildContext context, DashboardState state) {
         return ListView(
+          controller: listViewController1,
+          key: listViewKey1,
           shrinkWrap: true,
           children: <Widget>[
             DateRangeTile(

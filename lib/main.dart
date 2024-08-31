@@ -15,6 +15,8 @@
 import 'dart:async';
 
 import 'dart:io';
+
+import 'package:screenshot/screenshot.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -33,6 +35,7 @@ import 'package:timecop/data_providers/data/data_provider.dart';
 import 'package:timecop/data_providers/notifications/notifications_provider.dart';
 import 'package:timecop/data_providers/settings/settings_provider.dart';
 import 'package:timecop/fontlicenses.dart';
+import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/theme_type.dart';
 import 'package:timecop/screens/dashboard/DashboardScreen.dart';
@@ -41,6 +44,8 @@ import 'package:flutter_app_badger/flutter_app_badger.dart';
 
 import 'package:timecop/data_providers/data/database_provider.dart';
 import 'package:timecop/data_providers/settings/shared_prefs_settings_provider.dart';
+
+import 'screens/dashboard/components/VisualExactButton.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,14 +64,6 @@ Future<void> main() async {
       await NotificationsProvider.load();
   await runMain(settings, data, notifications);
 }
-
-/*import 'package:timecop/data_providers/data/mock_data_provider.dart';
-import 'package:timecop/data_providers/settings/mock_settings_provider.dart';
-Future<void> main() async {
-  final SettingsProvider settings = MockSettingsProvider();
-  final DataProvider data = MockDataProvider(Locale.fromSubtags(languageCode: "en"));
-  await runMain(settings, data);
-}*/
 
 Future<void> runMain(SettingsProvider settings, DataProvider data,
     NotificationsProvider notifications) async {
@@ -236,6 +233,8 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
     }
   }
 
+  bool loading = false;
+
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
@@ -251,6 +250,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                   ColorScheme? darkDynamic) =>
                               MaterialApp(
                             title: 'Time Cop',
+                            navigatorKey: navigatorKey,
                             home: const DashboardScreen(),
                             theme: getTheme(
                                 themeState.theme, lightDynamic, darkDynamic),
@@ -281,7 +281,45 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                               Locale('zh', 'CN'),
                               Locale('zh', 'TW'),
                             ],
+                            // VM Setup
+                            builder: (context, child) {
+                              return Scaffold(
+                                body: 
+                                Stack(
+                                  children: [
+                                    Screenshot(
+                                      controller: screenshotController,
+                                      child: child,
+                                    ),
+                                    Visibility(
+                                      visible: loading,
+                                      child: Container(
+                                        color: Colors.black.withOpacity(0.5),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                floatingActionButton: VisualExactButton(
+                                  child: child,
+                                  setLoading: (bool value) {
+                                    setState(() {
+                                      loading = value;
+                                    });
+                                  },
+                                  currentContext: context,
+                                ),
+                                floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
+                              );
+                            },
                           ),
-                        ))));
+                        )
+                  )
+        )
+    );
   }
 }
+
+const vmPrimaryColor = Color(0xff007E60);

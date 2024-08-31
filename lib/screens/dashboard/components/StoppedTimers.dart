@@ -28,6 +28,7 @@ import 'package:timecop/screens/dashboard/bloc/dashboard_bloc.dart';
 import 'package:timecop/screens/dashboard/components/CollapsibleDayGrouping.dart';
 import 'package:timecop/screens/dashboard/components/FilterText.dart';
 import 'package:timecop/screens/dashboard/components/GroupedStoppedTimersRow.dart';
+import '../../../global_key.dart';
 import 'StoppedTimerRow.dart';
 
 class _DayGrouping {
@@ -241,6 +242,8 @@ class StoppedTimers extends StatelessWidget {
                 dashboardState.filterEnd != null);
 
             return ListView.builder(
+              controller: listViewController3,
+              key: listViewKey3,
               itemCount: isFiltered ? days.length + 1 : days.length,
               itemBuilder: isFiltered
                   ? (BuildContext context, int index) => (index < days.length)
