@@ -16,6 +16,8 @@ import 'dart:async';
 
 import 'dart:io';
 
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
@@ -45,7 +47,59 @@ import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:timecop/data_providers/data/database_provider.dart';
 import 'package:timecop/data_providers/settings/shared_prefs_settings_provider.dart';
 
+// import 'app_routes.dart';
+import 'screens/about/AboutScreen.dart';
 import 'screens/dashboard/components/VisualExactButton.dart';
+import 'screens/export/ExportScreen.dart';
+import 'screens/projects/ProjectsScreen.dart';
+import 'screens/reports/ReportsScreen.dart';
+import 'screens/settings/SettingsScreen.dart';
+
+/// The route configuration.
+final GoRouter _router = GoRouter(
+  navigatorKey: navigatorKey,
+  routes: <RouteBase>[
+    GoRoute(
+      path: '/',
+      builder: (BuildContext context, GoRouterState state) {
+        return const DashboardScreen();
+      },
+      routes: <RouteBase>[
+        GoRoute(
+          path: 'projects',
+          builder: (BuildContext context, GoRouterState state) {
+            return const ProjectsScreen();
+          },
+        ),
+        GoRoute(
+          path: 'reports',
+          builder: (BuildContext context, GoRouterState state) {
+            return const ReportsScreen();
+          },
+        ),
+        GoRoute(
+          path: 'export',
+          builder: (BuildContext context, GoRouterState state) {
+            return const ExportScreen();
+          },
+        ),
+        GoRoute(
+          path: 'settings',
+          builder: (BuildContext context, GoRouterState state) {
+            return SettingsScreen();
+          },
+        ),
+        GoRoute(
+          path: 'about',
+          builder: (BuildContext context, GoRouterState state) {
+            return const AboutScreen();
+          },
+        ),
+      ],
+    ),
+  ],
+);
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -71,29 +125,58 @@ Future<void> runMain(SettingsProvider settings, DataProvider data,
   //await initializeDateFormatting();
   LicenseRegistry.addLicense(getFontLicenses);
 
-  runApp(MultiBlocProvider(
-    providers: [
-      BlocProvider<ThemeBloc>(
-        create: (_) => ThemeBloc(settings),
+  // runApp(MultiBlocProvider(
+  //   providers: [
+  //     BlocProvider<ThemeBloc>(
+  //       create: (_) => ThemeBloc(settings),
+  //     ),
+  //     BlocProvider<LocaleBloc>(
+  //       create: (_) => LocaleBloc(settings),
+  //     ),
+  //     BlocProvider<SettingsBloc>(
+  //       create: (_) => SettingsBloc(settings, data),
+  //     ),
+  //     BlocProvider<TimersBloc>(
+  //       create: (_) => TimersBloc(data, settings),
+  //     ),
+  //     BlocProvider<ProjectsBloc>(
+  //       create: (_) => ProjectsBloc(data),
+  //     ),
+  //     BlocProvider<NotificationsBloc>(
+  //       create: (_) => NotificationsBloc(notifications),
+  //     ),
+  //   ],
+  //   child: TimeCopApp(settings: settings),
+  // ));
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => DialogState(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<ThemeBloc>(
+            create: (_) => ThemeBloc(settings),
+          ),
+          BlocProvider<LocaleBloc>(
+            create: (_) => LocaleBloc(settings),
+          ),
+          BlocProvider<SettingsBloc>(
+            create: (_) => SettingsBloc(settings, data),
+          ),
+          BlocProvider<TimersBloc>(
+            create: (_) => TimersBloc(data, settings),
+          ),
+          BlocProvider<ProjectsBloc>(
+            create: (_) => ProjectsBloc(data),
+          ),
+          BlocProvider<NotificationsBloc>(
+            create: (_) => NotificationsBloc(notifications),
+          ),
+        ],
+        child: TimeCopApp(settings: settings),
       ),
-      BlocProvider<LocaleBloc>(
-        create: (_) => LocaleBloc(settings),
-      ),
-      BlocProvider<SettingsBloc>(
-        create: (_) => SettingsBloc(settings, data),
-      ),
-      BlocProvider<TimersBloc>(
-        create: (_) => TimersBloc(data, settings),
-      ),
-      BlocProvider<ProjectsBloc>(
-        create: (_) => ProjectsBloc(data),
-      ),
-      BlocProvider<NotificationsBloc>(
-        create: (_) => NotificationsBloc(notifications),
-      ),
-    ],
-    child: TimeCopApp(settings: settings),
-  ));
+    ),
+  );
 }
 
 class TimeCopApp extends StatefulWidget {
@@ -248,10 +331,77 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                         DynamicColorBuilder(
                           builder: (ColorScheme? lightDynamic,
                                   ColorScheme? darkDynamic) =>
-                              MaterialApp(
+                          //     MaterialApp(
+                          //   title: 'Time Cop',
+                          //   navigatorKey: navigatorKey,
+                          //   home: const DashboardScreen(),
+                          //   theme: getTheme(
+                          //       themeState.theme, lightDynamic, darkDynamic),
+                          //   localizationsDelegates: const [
+                          //     L10N.delegate,
+                          //     GlobalMaterialLocalizations.delegate,
+                          //     GlobalWidgetsLocalizations.delegate,
+                          //     GlobalCupertinoLocalizations.delegate,
+                          //   ],
+                          //   locale: localeState.locale,
+                          //   supportedLocales: const [
+                          //     Locale('en'),
+                          //     Locale('ar'),
+                          //     Locale('cs'),
+                          //     Locale('da'),
+                          //     Locale('de'),
+                          //     Locale('es'),
+                          //     Locale('fr'),
+                          //     Locale('hi'),
+                          //     Locale('id'),
+                          //     Locale('it'),
+                          //     Locale('ja'),
+                          //     Locale('ko'),
+                          //     Locale('nb', 'NO'),
+                          //     Locale('pt'),
+                          //     Locale('ru'),
+                          //     Locale('tr'),
+                          //     Locale('zh', 'CN'),
+                          //     Locale('zh', 'TW'),
+                          //   ],
+                          //   // VM Setup
+                          //   builder: (context, child) {
+                          //     return Scaffold(
+                          //       body: 
+                          //       Stack(
+                          //         children: [
+                          //           Screenshot(
+                          //             controller: screenshotController,
+                          //             child: child,
+                          //           ),
+                          //           Visibility(
+                          //             visible: loading,
+                          //             child: Container(
+                          //               color: Colors.black.withOpacity(0.5),
+                          //               child: const Center(
+                          //                 child: CircularProgressIndicator(),
+                          //               ),
+                          //             ),
+                          //           )
+                          //         ],
+                          //       ),
+                          //       floatingActionButton: VisualExactButton(
+                          //         child: child,
+                          //         setLoading: (bool value) {
+                          //           setState(() {
+                          //             loading = value;
+                          //           });
+                          //         },
+                          //         currentContext: context,
+                          //       ),
+                          //       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
+                          //     );
+                          //   },
+                          // ),
+
+                          MaterialApp.router(
                             title: 'Time Cop',
-                            navigatorKey: navigatorKey,
-                            home: const DashboardScreen(),
+                            routerConfig: _router,
                             theme: getTheme(
                                 themeState.theme, lightDynamic, darkDynamic),
                             localizationsDelegates: const [
@@ -303,13 +453,16 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                                   ],
                                 ),
                                 floatingActionButton: VisualExactButton(
-                                  child: child,
+                                  screenshotController: screenshotController,
+                                  navigatorKey: navigatorKey,
+                                  apiToken: 'cb283220-525d-11ef-93a6-054933d33c641722774826563',
                                   setLoading: (bool value) {
                                     setState(() {
                                       loading = value;
                                     });
                                   },
-                                  currentContext: context,
+                                  currentContext: context, // Use a valid API Token here
+                                  child: child,
                                 ),
                                 floatingActionButtonLocation: FloatingActionButtonLocation.miniStartFloat,
                               );

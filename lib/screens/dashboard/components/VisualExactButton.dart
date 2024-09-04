@@ -18,22 +18,48 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import '/global_key.dart';
+import 'package:go_router/go_router.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:provider/provider.dart';
+
+class Awesome {
+  bool get isAwesome => true;
+}
 
 class VisualExactButton extends StatefulWidget {
   final Widget? child;
   final Function setLoading;
   final BuildContext currentContext;
+  final ScreenshotController screenshotController;
+  final GlobalKey<NavigatorState> navigatorKey;
+  final String apiToken;
 
   const VisualExactButton({
-    Key? key,
+    super.key,
     required this.child,
     required this.setLoading,
-    required this.currentContext
-  }) : super(key: key);
+    required this.currentContext,
+    required this.screenshotController,
+    required this.navigatorKey,
+    required this.apiToken
+  });
 
   @override
   State<VisualExactButton> createState() => _VisualMatchButtonState();
+}
+
+class Project {
+  final int id;
+  final double width;
+  final double height;
+  final String lastUsedUrl;
+
+  Project({
+    required this.id,
+    required this.width,
+    required this.height,
+    required this.lastUsedUrl
+  });
 }
 
 class WidgetStyles {
@@ -74,21 +100,19 @@ class WidgetStyles {
 
 const vmPrimaryColor = Color(0xff007E60);
 
+bool autoScreenshotFlag = false;
+
 class ApiRes {
   ApiRes({required this.success, this.result = const <CampaignProjectModel>[]});
   final bool success;
   final List<CampaignProjectModel> result;
 }
 
-const apiToken = '67fd3d00-2439-11ef-bef2-dbb7af0bf2601717701444816'; // Use a valid API Token here
-
-final options = Options(
-  headers: {
-    'api-token': apiToken,
-  }
-);
-
 const uploadUrl = 'https://testserver.visualexact.com/api/designcomp/extension/screenshot/base64';
+
+const listingUrl = 'https://testserver.visualexact.com/api/designcomp/flutter/screenshot/project/list';
+
+final List<CampaignProjectModel> projectList = [];
 
 String toCssHexColor(Color color) {
   return '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
@@ -486,7 +510,7 @@ List<Map<String, dynamic>> _findVisibleWidgets(BuildContext context) {
       foundStyles.add(style);
     }
     else if (widget.widget is SizedBox) {
-      final SizedBox textWidget = widget.widget as SizedBox;
+      // final SizedBox textWidget = widget.widget as SizedBox;
       style = WidgetStyles(
         backgroundColor: null,
         color: null,
@@ -533,26 +557,80 @@ PageInfo pageInfo = PageInfo(
     modalKey: null,
 );
 
+Options options = Options(
+  headers: {}
+);
+
+resetProjectList() {
+
+    Dio().get(listingUrl,
+    options: options)
+    .then((res) {
+      final results = res.data['result'];
+
+      print('results: $results');
+
+      projectList.clear();
+
+      for (final item in results) {
+        projectList.add(CampaignProjectModel(
+          id: item['id'],
+          name: item['name'],
+          lastUsedUrl: item['lastUsedUrl'],
+          modalKey: item['modalKey'],
+          screenshot: item['screenshot'],
+          width: item['width'].toDouble(),
+          height: item['height'].toDouble(),
+        ));
+      }
+    });
+}
+
+late DialogState dialogState;
+
 class _VisualMatchButtonState extends State<VisualExactButton> {
 
   List<CampaignProjectModel> items = [];
   bool dialogOpened = false;
+  late GoRouter _goRouter;
 
-  Future<void> _showMyDialog() async {
-    CampaignProjectModel defaultCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
-    CampaignProjectModel defaultProject = CampaignProjectModel(id: 0, name: 'Select a Project');
-    CampaignProjectModel selectedCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
-    CampaignProjectModel selectedProject = CampaignProjectModel(id: 0, name: 'Select a Project');
-    String image = '';
-    int errorCode = 0;
-    double width = 414.0;
-    double height = 896.0;
-    Widget? child = widget.child;
-    List<int> targetedItemIds = [];
-    int totalScreenshotsCount = 0;
-    int currentNo = 0;
-    int status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
-    BuildContext dialogContext = navigatorKey.currentContext!;
+  CampaignProjectModel defaultCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
+  CampaignProjectModel defaultProject = CampaignProjectModel(id: 0, name: 'Select a Project');
+  CampaignProjectModel selectedCampaign = CampaignProjectModel(id: 0, name: 'Select a Campaign');
+  CampaignProjectModel selectedProject = CampaignProjectModel(id: 0, name: 'Select a Project');
+  String image = '';
+  int errorCode = 0;
+  double width = 414.0;
+  double height = 896.0;
+  List<int> targetedItemIds = [];
+  int totalScreenshotsCount = 0;
+  int currentNo = 0;
+  int status = 0; // 0: Standby, 1: Checking size, 2: Taking screenshots
+  Widget? child;
+  BuildContext? dialogContext;
+
+  List<CampaignProjectModel> campaigns = [
+    CampaignProjectModel(
+      id: 0,
+      name: 'Select a Campaign'
+    ),
+  ];
+
+  List<CampaignProjectModel> newCampaigns = [
+    CampaignProjectModel(
+      id: 0,
+      name: 'Select a Campaign',
+    ),
+  ];
+  
+  List<CampaignProjectModel> projects = [
+    CampaignProjectModel(
+      id: 0,
+      name: 'Select a Project',
+      width: 0.0,
+      height: 0.0
+    ),
+  ];
 
     bool isScrollable(dynamic widget) {
       // Check if the widget is a scrollable type and if it has a controller
@@ -593,7 +671,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
           scrollableContext is BuildContext &&
           renderObject is RenderBox
         ) {
-          // print('widget ${widget.key} checkpoint 3');
+          print('widget ${widget.key} checkpoint 3: $scrollableContext');
           // final RenderAbstractViewport viewport = RenderAbstractViewport.of(renderObject);
           try {
             final ScrollableState scrollableState = Scrollable.of(scrollableContext);
@@ -715,7 +793,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
           );
 
           // Wait for the screenshot making to be finished
-          await screenshotController
+          await widget.screenshotController
           .capture(delay: const Duration(milliseconds: 100))
           .then((capturedImage) async {
             if (capturedImage != null) {
@@ -742,7 +820,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                     'lastUsedUrl': pageInfo.url,
                     'hasModal': pageInfo.hasModal ? pageInfo.hasModal : false,
                     'pageKey': pageInfo.pageKey,
-                    'modalKey': pageInfo.modalKey,
+                    'modalKey': dialogState.openedDialog,
                   }
                 ],
               },
@@ -844,20 +922,20 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
       return foundScrollables;
     }
 
-    Future<void> pressHandler(Widget? child, BuildContext currentContext) async {
+    Future<void> pressHandler(Widget? child, BuildContext currentContext, dynamic project) async {
       print('Button pressed, updated 3');
 
       // Test Fetch All Widgets END
 
-      int projectId = selectedProject.id;
-      double requiredScreenWidth = selectedProject.width.toDouble();
-      double requiredScreenHeight = selectedProject.height.toDouble();
+      int projectId = project != null ? project.id : selectedProject.id;
+      double requiredScreenWidth = project != null ? project.width!.toDouble() : selectedProject.width.toDouble();
+      double requiredScreenHeight = project != null ? project.height!.toDouble() : selectedProject.height.toDouble();
 
       print('pressHandler projectId: $projectId');
 
       // Get the screen info
 
-      pageInfo = getPageInfo(currentContext);
+      pageInfo = getPageInfo(currentContext, widget.navigatorKey);
 
       print('pressHandler pageInfo: $pageInfo');
 
@@ -952,8 +1030,10 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
               dialogOpened = false;
             });
             
-            if (context.mounted) {
-              Navigator.of(dialogContext).pop();
+            if (context.mounted && dialogContext != null && dialogContext is BuildContext && _isDialogOpen) {
+              BuildContext dContext = dialogContext as BuildContext;
+              // This is throwing error
+              Navigator.of(dContext).pop();
               _isDialogOpen = false;
             }
           }
@@ -1021,7 +1101,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
         });
 
         // Initial screenshot
-        await screenshotController
+        await widget.screenshotController
         .capture(delay: const Duration(milliseconds: 1000))
         .then((capturedImage) {
           if (capturedImage != null) {
@@ -1049,7 +1129,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                     'lastUsedUrl': pageInfo.url,
                     'hasModal': pageInfo.hasModal ? pageInfo.hasModal : false,
                     'pageKey': pageInfo.pageKey,
-                    'modalKey': pageInfo.modalKey,
+                    'modalKey': dialogState.openedDialog,
                   }
                 ],
               },
@@ -1093,6 +1173,8 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                     status = 0;
                   });
                   widget.setLoading(false);
+                  _goRouter.routeInformationProvider.addListener(_onNotify);
+                  resetProjectList();
                 } catch (err) {
                   print('Error: $err');
                 }
@@ -1114,20 +1196,9 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
       }
     }
 
-    List<CampaignProjectModel> campaigns = [
-      CampaignProjectModel(
-        id: 0,
-        name: 'Select a Campaign'
-      ),
-    ];
 
-    List<CampaignProjectModel> newCampaigns = [
-      CampaignProjectModel(
-        id: 0,
-        name: 'Select a Campaign',
-      ),
-    ];
-    
+  Future<void> _showMyDialog() async {
+
     try {
       final res = await Dio().get('https://testserver.visualexact.com/api/designcomp/campaign/list', options: options);
 
@@ -1136,6 +1207,13 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
       if (res.statusCode == 200 && res.data != null) {
         print('res.data.success: ${res.data['success']}');
         if (res.data['success'] != null && res.data['success'] == true) {
+
+          newCampaigns = [
+            CampaignProjectModel(
+              id: 0,
+              name: 'Select a Campaign',
+            ),
+          ];
           
           for (final item in res.data['result']) {
             newCampaigns.add(
@@ -1157,21 +1235,12 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
     }
     setState(() => campaigns = newCampaigns);
 
-    List<CampaignProjectModel> projects = [
-      CampaignProjectModel(
-        id: 0,
-        name: 'Select a Project',
-        width: 0.0,
-        height: 0.0
-      ),
-    ];
-
     if (_isDialogOpen) return;
 
     _isDialogOpen = true;
 
     return showDialog(
-      context: navigatorKey.currentContext!,
+      context: widget.navigatorKey.currentContext!,
       barrierDismissible: false,
       builder: (context) {
 
@@ -1202,6 +1271,30 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                         width: double.infinity,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Auto scan pages'),
+                              Switch(
+                                // This bool value toggles the switch.
+                                value: autoScreenshotFlag,
+                                activeColor: vmPrimaryColor,
+                                onChanged: (bool value) {
+                                  // This is called when the user toggles the switch.
+                                  setState(() {
+                                    autoScreenshotFlag = value;
+                                  });
+                                  // autoScreenshotFlag = value;
+                                },
+                              ),
+                            ],
+                          )
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: new Theme(
                             data: Theme.of(context).copyWith(
                               canvasColor: Colors.white,
@@ -1211,7 +1304,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                               onChanged: (newValue) {
                                 final value = campaigns.firstWhere((element) => element.name == newValue);
                                 setState(() {
-                                  selectedCampaign = value ?? defaultCampaign;
+                                  selectedCampaign = value;
                                   image = '';
                                   errorCode = 0;
                                 });
@@ -1223,7 +1316,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                                   ),
                                 ];
 
-                                if (value != null && value.id != 0) {
+                                if (value.id != 0) {
                                   try {
                                     Dio().get('https://testserver.visualexact.com/api/designcomp/project/incompleted/list/${value.id}', options: options)
                                     .then((res) {
@@ -1411,7 +1504,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                                       status = 1;
                                     });
                                     
-                                    pressHandler(child, widget.currentContext);
+                                    pressHandler(child, widget.currentContext, null);
                                   }
                                   else if (!(context != null && child != null)) {
                                     setState(() {
@@ -1445,6 +1538,84 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+
+    print('initState is triggered');
+
+    options = Options(
+      headers: {
+        'api-token': widget.apiToken,
+      }
+    );
+
+    child = widget.child;
+    dialogContext = widget.navigatorKey.currentContext!;
+    resetProjectList();
+
+    _goRouter = GoRouter.of(widget.navigatorKey.currentContext!);
+    // _goRouter.addListener(_onNotify);
+    _goRouter.routeInformationProvider.addListener(_onNotify);
+
+    // Obtain the DialogState instance
+    dialogState = Provider.of<DialogState>(context, listen: false);
+    // Add a listener to trigger a function when the value changes
+    dialogState.addListener(_onNotify);
+  }
+
+  @override
+  void dispose() {
+    _goRouter.routeInformationProvider.removeListener(_onNotify);
+    _goRouter.dispose();
+    dialogState.removeListener(_onNotify);
+    projectList.clear();
+    super.dispose();
+  }
+
+  void _onNotify() {
+    if (!autoScreenshotFlag) {
+      return;
+    }
+
+    final location = _goRouter.routerDelegate.currentConfiguration.uri.toString();
+
+    print('[GoRouter] location: $location');
+    print('[GoRouter] dialogState.openedDialog: ${dialogState.openedDialog}');
+    print('[GoRouter] projectList.length: ${projectList.length}');
+    projectList.map((CampaignProjectModel project) => {
+      print('Project: $project')
+    });
+
+    for (final project in projectList) {
+      print('project.lastUsedUrl: ${project.lastUsedUrl}');
+      print('project.modalKey: ${project.modalKey}');
+    }
+
+    String currentLocation = location;
+
+    if (currentLocation.isNotEmpty && projectList.any((element) {
+      return element.lastUsedUrl == currentLocation && (
+        (
+          element.modalKey == null &&
+          dialogState.openedDialog == ''
+        ) || (
+          dialogState.openedDialog != '' &&
+          element.modalKey == dialogState.openedDialog
+        )
+      );
+    })) {
+      final project = projectList.firstWhere((element) {
+        return element.lastUsedUrl == currentLocation;
+      });
+
+      print('Project found: $project');
+
+      _goRouter.routeInformationProvider.removeListener(_onNotify);
+
+      pressHandler(child, widget.currentContext, project);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1468,12 +1639,22 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
 }
 
 class CampaignProjectModel {
-  CampaignProjectModel({required this.id, required this.name, this.width = 0.0, this.height = 0.0, this.screenshot = ''});
+  CampaignProjectModel({
+    required this.id, 
+    required this.name, 
+    this.width = 0.0, 
+    this.height = 0.0, 
+    this.screenshot = '',
+    this.lastUsedUrl = '',
+    this.modalKey = ''
+  });
   final int id;
   final String name;
   double width = 0.0;
   double height = 0.0;
   String screenshot = '';
+  String lastUsedUrl = '';
+  String? modalKey = '';
 }
 
 String uint8ListToBase64(Uint8List uint8List) {
@@ -1527,12 +1708,13 @@ class PageInfo {
   }
 }
 
-PageInfo getPageInfo(BuildContext context) {
+PageInfo getPageInfo(BuildContext context, GlobalKey navigatorKey) {
   // Retrieve the current URL from the route settings
-  final url = ModalRoute.of(context)?.settings.name;
-  final url2 = Uri.base.toString();
-  print('url: $url');
-  print('url2: $url2');
+  final routerContext = navigatorKey.currentContext;
+  final currentRoute = GoRouter.of(routerContext!).routerDelegate.currentConfiguration.uri.toString();
+  final url3 = currentRoute.toString();
+  // Success!
+  print('url3: $url3');
 
   // Automatically detect the page key (if any)
   final pageKey = _findGlobalKeyForWidget(context);
@@ -1544,7 +1726,7 @@ PageInfo getPageInfo(BuildContext context) {
   final modalKey = hasModal ? _findGlobalKeyForWidget(context) : null;
 
   return PageInfo(
-    url: url,
+    url: url3,
     pageKey: pageKey,
     hasModal: hasModal,
     modalKey: modalKey,
@@ -1564,9 +1746,20 @@ GlobalKey? _findGlobalKeyForWidget(BuildContext context) {
   return null;
 }
 
-void exampleUsage(BuildContext context) {
-  // Fetch page and modal info automatically
-  PageInfo pageInfo = getPageInfo(context);
+// String openedDialog = '';
 
-  print(pageInfo);
+class DialogState extends ChangeNotifier {
+  String _openedDialog = '';
+
+  String get openedDialog => _openedDialog;
+
+  void openDialog(String modalKey) {
+    _openedDialog = modalKey;
+    notifyListeners();
+  }
+
+  void closeDialog() {
+    _openedDialog = '';
+    notifyListeners();
+  }
 }
