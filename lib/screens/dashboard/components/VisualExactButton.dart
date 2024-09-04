@@ -48,13 +48,13 @@ class VisualExactButton extends StatefulWidget {
   State<VisualExactButton> createState() => _VisualMatchButtonState();
 }
 
-class Project {
+class VEProject {
   final int id;
   final double width;
   final double height;
   final String lastUsedUrl;
 
-  Project({
+  VEProject({
     required this.id,
     required this.width,
     required this.height,
@@ -1389,7 +1389,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                               canvasColor: Colors.white,
                             ),
                             child: DropdownButton<String>(
-                              hint: const Text('Select Project'),
+                              hint: const Text('Select a Project'),
                               onChanged: (value) {
                                 final project = projects.firstWhere((element) => element.name == value);
                                 setState(() {
@@ -1424,7 +1424,7 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                           child: Text(
                             errorCode == 0 ? '' :
                             errorCode == 1 ? 'Please select a Campaign' :
-                            errorCode == 2 ? 'Please select a Project' :
+                            errorCode == 2 ? 'Please Select a Project' :
                             errorCode == 3 ? 'Something is wrong!' :
                             // 'The screen size is wrong. It must be ${width} x ${height}',
                             'The screen size required is ${width} x ${height}. Please change your device or consult your designer.',

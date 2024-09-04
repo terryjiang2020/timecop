@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/screens/about/AboutScreen.dart';
 import 'package:timecop/screens/export/ExportScreen.dart';
@@ -40,29 +41,34 @@ class PopupMenu extends StatelessWidget {
       onSelected: (MenuItem item) {
         switch (item) {
           case MenuItem.projects:
-            Navigator.of(context).push(MaterialPageRoute<ProjectsScreen>(
-              builder: (_) => const ProjectsScreen(),
-            ));
+            // Navigator.of(context).push(MaterialPageRoute<ProjectsScreen>(
+            //   builder: (_) => const ProjectsScreen(),
+            // ));
+            GoRouter.of(context).go('/projects');
             break;
           case MenuItem.reports:
-            Navigator.of(context).push(MaterialPageRoute<ReportsScreen>(
-              builder: (_) => const ReportsScreen(),
-            ));
+            // Navigator.of(context).push(MaterialPageRoute<ReportsScreen>(
+            //   builder: (_) => const ReportsScreen(),
+            // ));
+            GoRouter.of(context).go('/reports');
             break;
           case MenuItem.export:
-            Navigator.of(context).push(MaterialPageRoute<ExportScreen>(
-              builder: (_) => const ExportScreen(),
-            ));
+            // Navigator.of(context).push(MaterialPageRoute<ExportScreen>(
+            //   builder: (_) => const ExportScreen(),
+            // ));
+            GoRouter.of(context).go('/export');
             break;
           case MenuItem.settings:
-            Navigator.of(context).push(MaterialPageRoute<SettingsScreen>(
-              builder: (_) => SettingsScreen(),
-            ));
+            // Navigator.of(context).push(MaterialPageRoute<SettingsScreen>(
+            //   builder: (_) => SettingsScreen(),
+            // ));
+            GoRouter.of(context).go('/settings');
             break;
           case MenuItem.about:
-            Navigator.of(context).push(MaterialPageRoute<AboutScreen>(
-              builder: (_) => const AboutScreen(),
-            ));
+            // Navigator.of(context).push(MaterialPageRoute<AboutScreen>(
+            //   builder: (_) => const AboutScreen(),
+            // ));
+            GoRouter.of(context).go('/about');
             break;
         }
       },
