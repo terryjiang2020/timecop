@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timecop/blocs/projects/projects_bloc.dart';
 import 'package:timecop/blocs/settings/settings_bloc.dart';
 import 'package:timecop/blocs/timers/timers_bloc.dart';
@@ -79,11 +80,15 @@ class StoppedTimerRow extends StatelessWidget {
                   actions: <Widget>[
                     TextButton(
                       child: Text(L10N.of(context).tr.cancel),
-                      onPressed: () => Navigator.of(context).pop(false),
+                      onPressed: () => 
+                      // Navigator.of(context).pop(false),
+                      GoRouter.of(context).pop(false),
                     ),
                     TextButton(
                       child: Text(L10N.of(context).tr.delete),
-                      onPressed: () => Navigator.of(context).pop(true),
+                      onPressed: () => 
+                      // Navigator.of(context).pop(true),
+                      GoRouter.of(context).pop(true),
                     ),
                   ],
                 ))) ??

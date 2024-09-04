@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
 import 'package:timecop/blocs/settings/bloc.dart';
 import 'package:timecop/components/ProjectColour.dart';
@@ -198,11 +199,15 @@ class ProjectsScreen extends StatelessWidget {
                 actions: <Widget>[
                   TextButton(
                     child: Text(L10N.of(context).tr.cancel),
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => 
+                    // Navigator.of(context).pop(false),
+                    GoRouter.of(context).pop(false),
                   ),
                   TextButton(
                     child: Text(L10N.of(context).tr.delete),
-                    onPressed: () => Navigator.of(context).pop(true),
+                    onPressed: () => 
+                    // Navigator.of(context).pop(true),
+                    GoRouter.of(context).pop(true),
                   ),
                 ],
               );
@@ -245,11 +250,15 @@ PopScope(
           actions: <Widget>[
             TextButton(
               child: const Text('Dismiss'),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => 
+              // Navigator.of(context).pop(),
+              GoRouter.of(context).pop(),
             ),
             FilledButton(
               child: const Text('Okay'),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => 
+              // Navigator.of(context).pop(),
+              GoRouter.of(context).pop(),
             ),
           ],
         )
@@ -281,12 +290,16 @@ PopScope(
                 centerTitle: false,
                 leading: IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => 
+                  // Navigator.of(context).pop(),
+                  GoRouter.of(context).pop(),
                 ),
                 actions: [
                   TextButton(
                     child: const Text('Close'),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => 
+                    // Navigator.of(context).pop(),
+                    GoRouter.of(context).pop(),
                   ),
                 ],
               ),
@@ -320,4 +333,3 @@ PopScope(
     );
   }
 }
-

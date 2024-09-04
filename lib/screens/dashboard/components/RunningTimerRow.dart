@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
 import 'package:timecop/blocs/timers/bloc.dart';
 import 'package:timecop/components/ProjectColour.dart';
@@ -57,12 +58,14 @@ class RunningTimerRow extends StatelessWidget {
                                 TextButton(
                                   child: Text(L10N.of(context).tr.cancel),
                                   onPressed: () =>
-                                      Navigator.of(context).pop(false),
+                                      // Navigator.of(context).pop(false),
+                                      GoRouter.of(context).pop(false),
                                 ),
                                 TextButton(
                                   child: Text(L10N.of(context).tr.delete),
                                   onPressed: () =>
-                                      Navigator.of(context).pop(true),
+                                      // Navigator.of(context).pop(true),
+                                      GoRouter.of(context).pop(true),
                                 ),
                               ],
                             )) ??

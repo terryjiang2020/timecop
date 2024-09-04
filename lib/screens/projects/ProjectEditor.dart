@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
 import 'package:timecop/global_key.dart';
 import 'package:timecop/l10n.dart';
@@ -83,7 +84,9 @@ class _ProjectEditorState extends State<ProjectEditor> {
               children: <Widget>[
                 TextButton(
                   child: Text(L10N.of(context).tr.cancel),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => 
+                  // Navigator.of(context).pop(),
+                  GoRouter.of(context).pop(),
                 ),
                 TextButton(
                   child: Text(widget.project == null
@@ -103,7 +106,8 @@ class _ProjectEditorState extends State<ProjectEditor> {
                           name: _nameController!.text.trim(), colour: _colour);
                       projects.add(EditProject(p));
                     }
-                    Navigator.of(context).pop();
+                    // Navigator.of(context).pop();
+                    GoRouter.of(context).pop();
                   },
                 )
               ],

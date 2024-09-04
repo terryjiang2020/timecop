@@ -23,6 +23,7 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
 import 'package:timecop/blocs/settings/settings_bloc.dart';
@@ -126,12 +127,14 @@ class _TimerEditorState extends State<TimerEditor> {
                                 TextButton(
                                   child: Text(L10N.of(context).tr.cancel),
                                   onPressed: () =>
-                                      Navigator.of(context).pop(false),
+                                      // Navigator.of(context).pop(false),
+                                      GoRouter.of(context).pop(false),
                                 ),
                                 TextButton(
                                   child: Text(L10N.of(context).tr.delete),
                                   onPressed: () =>
-                                      Navigator.of(context).pop(true),
+                                      // Navigator.of(context).pop(true),
+                                      GoRouter.of(context).pop(true),
                                 ),
                               ],
                             ))) ??
@@ -139,7 +142,8 @@ class _TimerEditorState extends State<TimerEditor> {
                 if (delete) {
                   timersBloc.add(DeleteTimer(widget.timer));
                   if (!mounted) return;
-                  Navigator.of(context).pop();
+                  // Navigator.of(context).pop();
+                  GoRouter.of(context).pop();
                 }
               },
               icon: const Icon(FontAwesomeIcons.trash))
@@ -453,7 +457,8 @@ class _TimerEditorState extends State<TimerEditor> {
           );
 
           timers.add(EditTimer(timer));
-          Navigator.of(context).pop();
+          // Navigator.of(context).pop();
+          GoRouter.of(context).pop();
         },
       ),
     );
@@ -474,17 +479,23 @@ class _TimerEditorState extends State<TimerEditor> {
               expands: true,
               smartDashesType: SmartDashesType.enabled,
               smartQuotesType: SmartQuotesType.enabled,
-              onSaved: (String? n) => Navigator.of(context).pop(n),
+              onSaved: (String? n) => 
+              // Navigator.of(context).pop(n),
+              GoRouter.of(context).pop(n),
             ),
             actions: <Widget>[
               TextButton(
                   child: Text(L10N.of(context).tr.cancel),
-                  onPressed: () => Navigator.of(context).pop()),
+                  onPressed: () => 
+                  // Navigator.of(context).pop()
+                  GoRouter.of(context).pop()
+                ),
               TextButton(
                   style: TextButton.styleFrom(
                       foregroundColor: Theme.of(context).colorScheme.primary),
                   onPressed: () =>
-                      Navigator.of(context).pop(_notesController!.text),
+                      // Navigator.of(context).pop(_notesController!.text),
+                      GoRouter.of(context).pop(_notesController!.text),
                   child: Text(
                     L10N.of(context).tr.save,
                   ))

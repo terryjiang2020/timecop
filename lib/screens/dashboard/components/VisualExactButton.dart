@@ -1033,7 +1033,8 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
             if (context.mounted && dialogContext != null && dialogContext is BuildContext && _isDialogOpen) {
               BuildContext dContext = dialogContext as BuildContext;
               // This is throwing error
-              Navigator.of(dContext).pop();
+              // Navigator.of(dContext).pop();
+              GoRouter.of(dContext).pop();
               _isDialogOpen = false;
             }
           }
@@ -1471,7 +1472,8 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop();
+                                  // Navigator.of(context).pop();
+                                  GoRouter.of(context).pop();
                                   dialogOpened = false;
                                   _isDialogOpen = false;
                                 },

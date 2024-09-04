@@ -15,12 +15,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
 import 'package:timecop/components/ProjectColour.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/project.dart';
 import 'package:timecop/screens/dashboard/bloc/dashboard_bloc.dart';
-import 'package:timecop/screens/projects/ProjectsScreen.dart';
+// import 'package:timecop/screens/projects/ProjectsScreen.dart';
 import 'package:timecop/themes.dart';
 
 class ProjectSelectField extends StatefulWidget {
@@ -78,11 +79,13 @@ class _ProjectSelectFieldState extends State<ProjectSelectField> {
                                   FontAwesomeIcons.penToSquare,
                                 ),
                                 onTap: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context)
-                                      .push(MaterialPageRoute<ProjectsScreen>(
-                                    builder: (_) => const ProjectsScreen(),
-                                  ));
+                                  // Navigator.of(context).pop();
+                                  // Navigator.of(context)
+                                  //     .push(MaterialPageRoute<ProjectsScreen>(
+                                  //   builder: (_) => const ProjectsScreen(),
+                                  // ));
+                                  GoRouter.of(context).pop();
+                                  GoRouter.of(context).push('/projects');
                                 },
                               )),
                         ]),
@@ -93,7 +96,8 @@ class _ProjectSelectFieldState extends State<ProjectSelectField> {
                                 .where((p) => !p.archived))
                             .map((Project? p) => InkWell(
                                 onTap: () {
-                                  Navigator.of(context).pop(_ProjectChoice(p));
+                                  // Navigator.of(context).pop(_ProjectChoice(p));
+                                  GoRouter.of(context).pop(_ProjectChoice(p));
                                 },
                                 child: Padding(
                                     padding: const EdgeInsets.symmetric(
