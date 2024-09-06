@@ -1275,11 +1275,18 @@ class _VisualMatchButtonState extends State<VisualExactButton> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Auto scan pages'),
+                              const Text(
+                                'Auto scan pages',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
                               Switch(
                                 // This bool value toggles the switch.
                                 value: autoScreenshotFlag,
                                 activeColor: vmPrimaryColor,
+                                inactiveThumbColor: Colors.white10,
+                                inactiveTrackColor: Colors.grey,
                                 onChanged: (bool value) {
                                   // This is called when the user toggles the switch.
                                   setState(() {

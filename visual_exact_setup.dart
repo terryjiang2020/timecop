@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 // TODO: Change this to the flutter package name later on.
-const String importStatement = "import 'package:androidrouting/visual_exact_button.dart';";
+const String importStatement = "import 'package:timecop/screens/dashboard/components/VisualExactButton.dart';";
 const String openDialog = "showDialog<void>";
 const String importTest = 'package:flutter_test/flutter_test.dart';
 const popScopeTemplate = """
@@ -36,7 +36,7 @@ void processDartFile(File file) {
   bool containsImport = lines.any((line) => line.contains(importStatement));
   bool noOpenDialog = !lines.any((line) => line.contains(openDialog));
   bool containsTest = lines.any((line) => line.contains(importTest));
-  bool isVisualExact = file.path.contains('visual_exact');
+  bool isVisualExact = file.path.contains('visual_exact') || file.path.contains('VisualExact');
   bool modified = false;
 
   // print('noOpenDialog: $noOpenDialog');
@@ -79,12 +79,24 @@ void processDartFile(File file) {
   // Process onPopInvoked functions
   for (int i = 0; i < lines.length; i++) {
     if (lines[i].contains('onPopInvoked:')) {
+      // Capture the custom variable used for didPop
+      final variableName = extractPopVariableName(lines[i]);
+
       final onPopStart = i;
       final onPopEnd = findParentFunctionEnd(lines, i);
 
+      bool foundDialogClose = false;
       for (int j = onPopStart; j < onPopEnd; j++) {
-        if (lines[j].contains('didPop == true') || lines[j].contains('if (didPop') || lines[j].contains('didPop) {')) {
-          if (!lines.sublist(j, onPopEnd).any((line) => line.contains('dialogState.closeDialog('))) {
+        if (lines[j].contains('dialogState.closeDialog()')) {
+          foundDialogClose = true;
+          break;
+        }
+      }
+
+      if (!foundDialogClose) {
+        // Look for the condition that checks the variableName and add dialogState.closeDialog();
+        for (int j = onPopStart; j < onPopEnd; j++) {
+          if (lines[j].contains('$variableName == true') || lines[j].contains('if ($variableName') || lines[j].contains('$variableName) {')) {
             lines.insert(j + 1, "dialogState.closeDialog();");
             modified = true;
             break;
@@ -251,4 +263,10 @@ String removeLastSemicolon(String line) {
   
   // Remove the semicolon by taking substrings before and after it
   return line.substring(0, lastSemicolonIndex) + line.substring(lastSemicolonIndex + 1);
+}
+
+// Function to extract the variable name used in onPopInvoked
+String extractPopVariableName(String line) {
+  final match = RegExp(r'onPopInvoked:\s*\(\s*(\w+)\s*\)').firstMatch(line);
+  return match?.group(1) ?? 'didPop'; // Default to 'didPop' if no match
 }
